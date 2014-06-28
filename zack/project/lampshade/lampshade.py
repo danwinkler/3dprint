@@ -2,7 +2,9 @@ from solid import *
 import random
 import sys
 from math import *
-from mat import *
+
+sys.path.append( "../../../" )
+from zack.lib.mat import *
 
 
 balls = []
@@ -28,7 +30,7 @@ scad_render_to_file(
 			balls
 		),
 		cylinder(r=10,h=60)
-	), "spiral.scad"
+	), "lampshade.scad"
 )
 
 

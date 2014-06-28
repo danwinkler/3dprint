@@ -3017,7 +3017,9 @@ from solid import *
 import random
 import sys
 from math import *
-from mat import *
+
+sys.path.append( "../../../" )
+from zack.lib.mat import *
 
 
 balls = []
