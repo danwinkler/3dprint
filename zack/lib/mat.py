@@ -26,6 +26,33 @@ class Vec3:
 		self.y = _y
 		self.z = _z
 
+	def add( self, b ):
+		if type(b) is list:
+			self.x += b[0]
+			self.y += b[1]
+			self.z += b[2]
+
+		if isinstance(b,Vec3):
+			self.x += b.x
+			self.y += b.y
+			self.z += b.z
+
+	def sub( self, b ):
+		if type(b) is list:
+			self.x -= b[0]
+			self.y -= b[1]
+			self.z -= b[2]
+
+		if isinstance(b,Vec3):
+			self.x -= b.x
+			self.y -= b.y
+			self.z -= b.z
+
+	def mul( self, b ):
+		self.x *= b
+		self.y *= b
+		self.z *= b
+
 	def mag2( self ):
 		return self.x * self.x + self.y * self.y + self.z * self.z
 
