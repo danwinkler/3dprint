@@ -79,7 +79,7 @@ class Vec3:
 	def __str__( self ):
 		return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
 
-def make_trunk( height, sections, pf ):
+def make_trunk( height, sections, pf, index=False ):
 	def add_points( p1, p2 ):
 		return [p1[0]+p2[0],p1[1]+p2[1],p1[2]+p2[2]]
 
@@ -94,7 +94,10 @@ def make_trunk( height, sections, pf ):
 	#generate points
 	for h in range(height):
 		for s in range(sections):
-			points.append( pf( h/float(height), s/float(sections) ) )
+			if index:
+				points.append( pf( h, s ) )
+			else:
+				points.append( pf( h/float(height), s/float(sections) ) )
 	
 	for h in range(height-1):
 		h2 = h+1
