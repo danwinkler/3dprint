@@ -6,6 +6,7 @@ from random import *
 
 sys.path.append( "../../../" )
 from zack.lib.mat import *
+from zack.lib.pathmat import *
 
 # A path is a set of points in 3 space
 def attenuatedSprial():
@@ -22,60 +23,6 @@ def attenuatedSprial():
 	return path
 
 
-# A pathMat is a list of orthonormal Mat4's
-def pathToPathMat( path ):
-	pathMat = []
-	for i in xrange(0, len(path) ):
-		if i == len(path)-1:
-			z = Vec3( path[i] )
-			z.sub( path[i-1] )
-		else:
-			z = Vec3( path[i+1] )
-			z.sub( path[i] )
-		z.normalize()
-		
-		y = Vec3( path[i] )
-		y.cross( z )
-		y.normalize()
-		
-		x = Vec3( z )
-		x.cross( y )
-
-		m = Mat4( [ [x.x,y.x,z.x,path[i].x], [x.y,y.y,z.y,path[i].y], [x.z,y.z,z.z,path[i].z], [0,0,0,1] ] )
-		pathMat.append( m )
-
-	return pathMat
-
-def interpolate( p, pathMat ):
-	totalPathLen = 0
-	for i in xrange(1, len(path) ):
-		p0 = Vec3( pathMat[i-1].getTrans() )
-		p1 = Vec3( pathMat[i+0].getTrans() )
-		p1.sub( p0 )
-		totalPathLen += p1.mag()
-
-	q = p * totalPathLen
-
-	pathLen = 0
-	lastPathLen = 0
-	for i in xrange(1, len(path) ):
-		p0 = Vec3( pathMat[i-1].getTrans() )
-		p1 = Vec3( pathMat[i+0].getTrans() )
-		p1.sub( p0 )
-		p1mag = p1.mag()
-		if pathLen+p1mag > q:
-			frac = ( q - lastPathLen ) / p1mag
-			p1.mul( frac )
-			p2 = Vec3( p0 )
-			p2.add( p1 )
-			m = Mat4( pathMat[i-1] )
-			m.setTrans( p2 )
-			return m
-
-		pathLen += p1mag
-		lastPathLen = pathLen
-
-	return pathMat[len(path)-1]
 			
 
 balls = []

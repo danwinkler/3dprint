@@ -1,4 +1,5 @@
 from math import *
+import copy
 
 class Vec3:
 	def __init__( self, v=None ):
@@ -8,14 +9,14 @@ class Vec3:
 			self.z = 0
 
 		if type(v) is list:
-			self.x = v[0]
-			self.y = v[1]
-			self.z = v[2]
+			self.x = copy.copy( v[0] )
+			self.y = copy.copy( v[1] )
+			self.z = copy.copy( v[2] )
 
 		if isinstance(v,Vec3):
-			self.x = v.x
-			self.y = v.y
-			self.z = v.z
+			self.x = copy.copy( v.x )
+			self.y = copy.copy( v.y )
+			self.z = copy.copy( v.z )
 
 	def cross( self, b ):
 		assert( isinstance(b,Vec3) )
@@ -82,10 +83,13 @@ class Mat4:
 			self.identity()
 
 		if type(m) is list:
-			self.m = m
+			self.m = copy.deepcopy(m)
 
 		if isinstance(m,Mat4):
-			self.m = m.m
+			self.m = copy.deepcopy(m.m)
+
+	def list( self ):
+		return self.m
 
 	def cat( self, b ):
 		assert( isinstance(b,Mat4) )
