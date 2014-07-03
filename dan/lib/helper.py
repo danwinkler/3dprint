@@ -1,7 +1,85 @@
 from solid import *
 from solid.utils import *
 
-def make_trunk( height, sections, pf ):
+class Vec3:
+	
+	def __init__( self, x=0, y=0, z=0 ):
+		self.x = float(x)
+		self.y = float(y)
+		self.z = float(z)
+	
+	def length( self ):
+		return math.sqrt( self.length2() )
+	
+	def length2( self ):
+		return self.x*self.x + self.y*self.y + self.z*self.z
+	
+	def to_list( self ):
+		return [self.x,self.y,self.z]
+	
+	def distance( self, other ):
+		return math.sqrt( self.distance2( other ) )
+	
+	def distance2( self, other ):	
+		x = self.x - other.x
+		y = self.y - other.y
+		z = self.z - other.z
+		return x*x+y*y+z*z
+	
+	def normalize( self ):
+		self /= self.length()
+	
+	def __add__( self, other ):
+		return Vec3( self.x + other.x, self.y + other.y, self.z + other.z )
+	
+	def __sub__( self, other ):
+		return Vec3( self.x - other.x, self.y - other.y, self.z - other.z )
+		
+	def __mul__( self, val ):
+		return Vec3( self.x * val, self.y * val, self.z * val )
+		
+	def __iadd__( self, other ):
+		self.x += other.x
+		self.y += other.y
+		self.z += other.z
+		return self
+	
+	def __imul__( self, val ):
+		self.x *= val
+		self.y *= val
+		self.z *= val
+		return self
+	
+	def __idiv__( self, val ):
+		self.x /= val
+		self.y /= val
+		self.z /= val
+		return self
+	
+	def __getitem__( self, key ):
+		if key == 0:
+			return self.x
+		elif key == 1:
+			return self.y
+		elif key == 2:
+			return self.z
+		else:
+			raise Exception("Invalid index to Vec3")
+        
+	def __setitem__( self, key, value ):
+		if key == 0:
+			self.x = value
+		elif key == 1:
+			self.y = valye
+		elif key == 2:
+			self.z = value
+		else:
+			raise Exception("Invalid index to Vec3")
+        
+	def __str__( self ):
+		return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
+
+def make_trunk( height, sections, pf, index=False ):
 	def add_points( p1, p2 ):
 		return [p1[0]+p2[0],p1[1]+p2[1],p1[2]+p2[2]]
 
@@ -16,7 +94,10 @@ def make_trunk( height, sections, pf ):
 	#generate points
 	for h in range(height):
 		for s in range(sections):
-			points.append( pf( h/float(height), s/float(sections) ) )
+			if index:
+				points.append( pf( h, s ) )
+			else:
+				points.append( pf( h/float(height), s/float(sections) ) )
 	
 	for h in range(height-1):
 		h2 = h+1
