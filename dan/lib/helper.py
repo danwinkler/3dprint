@@ -20,6 +20,9 @@ class Vec3:
 	def distance( self, other ):
 		return math.sqrt( self.distance2( other ) )
 	
+	def copy( self ):
+		return Vec3( self.x, self.y, self.z )
+	
 	def distance2( self, other ):	
 		x = self.x - other.x
 		y = self.y - other.y
@@ -27,7 +30,30 @@ class Vec3:
 		return x*x+y*y+z*z
 	
 	def normalize( self ):
-		self /= self.length()
+		len = self.length()
+		if len == 0:
+			return
+		self /= len
+		return self
+	
+	def dot( self, vec ):
+		return self.x*vec.x + self.y*vec.y + self.z*vec.z
+	
+	def rotate( self, axis, angle ):
+		axis = axis.copy().normalize()
+		vnorm = self.copy().normalize()
+		_parallel = axis.dot( self )
+		parallel = axis * _parallel
+		perp = self - parallel
+		cross = self.cross( axis )
+		result = parallel + cross * math.sin( -angle ) + perp * math.cos( -angle )
+		return result
+	
+	def cross( self, v ):
+		cross_x = self.y * v.z - v.y * self.z;
+		cross_y = self.z * v.x - v.z * self.x;
+		cross_z = self.x * v.y - v.x * self.y;
+		return Vec3( cross_x, cross_y, cross_z )
 	
 	def __add__( self, other ):
 		return Vec3( self.x + other.x, self.y + other.y, self.z + other.z )
