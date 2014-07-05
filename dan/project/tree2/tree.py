@@ -11,60 +11,37 @@ from solid.utils import *
 
 parts = []
 
-points = []
-widths = []
 
-points.append( Vec3( 0,0,0 ) )
-widths.append( 10 )
+def r_vine():
+	points = []
 
-variance = .5
+	points.append( Vec3( 0,0,0 ) )
 
-vec = Vec3( 0, 0, 1 )
-for i in range( 100 ):
-	np = points[-1] + vec
-	widths.append( 10 )
-	
-	points.append( np )
-	
-	vec.x += random.uniform( -variance, variance )
-	vec.y += random.uniform( -variance, variance )
-	vec.z += random.uniform( -variance, variance )
-	
-	vec.normalize()
+	variance = .3
+	z_var = .1
+	length = 4
 
-cross = points[0].copy()
-cross.x += random.uniform( -.5, .5 )
-cross.y += random.uniform( -.5, .5 )
-cross.z += random.uniform( -.5, .5 )
-	
-def tf( h, a ):
-	global cross
-	if h == 0:
-		vec = points[1] - points[0]
-	elif h == len(points)-1:
-		vec = points[-1] - points[-2]
-	else:
-		vec = (points[h] - points[h-1]) + (points[h+1] - points[h])
-	
-	vec.normalize()
-	
-	angle = (a/8.0) * math.pi * 2
-	
-	#cvec = Vec3( math.cos( angle ), math.sin( angle ), 0 )
-	
-	p = vec.cross( cross )
-	
-	p = p.cross( vec )
-	
-	cross = p
-	cross.normalize()
-	
-	p = p.rotate( vec, angle )
-	
-	return [points[h].x + p.x, points[h].y + p.y, points[h].z + p.z]
+	vec = Vec3( 0, 0, 1 )
+	for i in range( 100 ):
+		vec.normalize()
 		
+		vec.x += random.uniform( -variance, variance ) + ((-vec.x ** 3) * 1)
+		vec.y += random.uniform( -variance, variance ) + ((-vec.y ** 3) * 1)
+		vec.z += random.uniform( -z_var, z_var )
+		
+		vec *= length
+		
+		np = points[-1] + vec
+		
+		points.append( np )
 	
-parts.append( make_trunk( len( points ), 8, tf, index=True ) )
+	def wf( pi, r ):
+		return 4
+	
+	return vine( points, wf )
+
+for i in range( 10 ):
+	parts.append( r_vine() )
 	
 	
 print "Saving File"
