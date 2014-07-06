@@ -54,7 +54,7 @@ def interpolate( p, pathMat ):
 		pathLen += p1mag
 		lastPathLen = pathLen
 
-	return Mat4( pathMat[len(path)-1] )
+	return Mat4( pathMat[len(pathMat)-1] )
 
 
 def extrudeTubeAlongPath( radialSteps, heightSteps, pathMat, radius, radialFunc=None ):
