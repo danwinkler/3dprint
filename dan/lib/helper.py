@@ -1,6 +1,8 @@
 from solid import *
 from solid.utils import *
 
+import random
+
 class Vec3:
 	
 	def __init__( self, x=0, y=0, z=0 ):
@@ -20,6 +22,9 @@ class Vec3:
 	def distance( self, other ):
 		return math.sqrt( self.distance2( other ) )
 	
+	def copy( self ):
+		return Vec3( self.x, self.y, self.z )
+	
 	def distance2( self, other ):	
 		x = self.x - other.x
 		y = self.y - other.y
@@ -27,7 +32,30 @@ class Vec3:
 		return x*x+y*y+z*z
 	
 	def normalize( self ):
-		self /= self.length()
+		len = self.length()
+		if len == 0:
+			return
+		self /= len
+		return self
+	
+	def dot( self, vec ):
+		return self.x*vec.x + self.y*vec.y + self.z*vec.z
+	
+	def rotate( self, axis, angle ):
+		axis = axis.copy().normalize()
+		vnorm = self.copy().normalize()
+		_parallel = axis.dot( self )
+		parallel = axis * _parallel
+		perp = self - parallel
+		cross = self.cross( axis )
+		result = parallel + cross * math.sin( -angle ) + perp * math.cos( -angle )
+		return result
+	
+	def cross( self, v ):
+		cross_x = self.y * v.z - v.y * self.z;
+		cross_y = self.z * v.x - v.z * self.x;
+		cross_z = self.x * v.y - v.x * self.y;
+		return Vec3( cross_x, cross_y, cross_z )
 	
 	def __add__( self, other ):
 		return Vec3( self.x + other.x, self.y + other.y, self.z + other.z )
@@ -79,6 +107,54 @@ class Vec3:
 	def __str__( self ):
 		return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
 
+#Given a list of points and a width function, 
+#generates a "vine" polyhedron using make_trunk
+# points - a list of Vec3's
+# wf - a function that returns the distance from the point, 
+#      given the point index and the angle
+# sections - the number of points around the circle
+def vine( points, wf, sections=8 ):
+	global cross
+	
+	cross = points[0].copy()
+	cross.x += random.uniform( -.5, .5 )
+	cross.y += random.uniform( -.5, .5 )
+	cross.z += random.uniform( -.5, .5 )
+		
+	def tf( h, a ):
+		global cross
+		if h == 0:
+			vec = points[1] - points[0]
+		elif h == len(points)-1:
+			vec = points[-1] - points[-2]
+		else:
+			vec = (points[h] - points[h-1]) + (points[h+1] - points[h])
+		
+		vec.normalize()
+		
+		angle = (a/float(sections)) * math.pi * 2
+		
+		p = vec.cross( cross )
+		
+		p = p.cross( vec )
+		
+		cross = p
+		cross.normalize()
+		
+		p = p.rotate( vec, angle )
+		
+		width = wf( h, a )
+		
+		return [points[h].x + p.x * width, points[h].y + p.y * width, points[h].z + p.z * width]
+		
+	return make_trunk( len( points ), sections, tf, index=True )
+
+# Returns a polyhedron based on a set of points
+# height - number of rows of points
+# sections - number of points around each row (in a circle)
+# pf - a function, that when given a height and a section number, returns a list [x,y,z]
+# index - When false, pf is called with height and sections as floats between 0...1
+#         When true, calls pf with the index (0...n)		
 def make_trunk( height, sections, pf, index=False ):
 	def add_points( p1, p2 ):
 		return [p1[0]+p2[0],p1[1]+p2[1],p1[2]+p2[2]]
