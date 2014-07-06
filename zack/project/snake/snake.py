@@ -7,6 +7,7 @@ from random import *
 sys.path.append( "../../../" )
 from zack.lib.mat import *
 from zack.lib.pathmat import *
+from zack.lib.pycurve import *
 
 
 path = []
@@ -81,7 +82,6 @@ all = union()(
 	translate([50,2,0])( rotate( 90, [1,0,0] )( top ) ),
 	translate([51*cos(t)-10,51*sin(t)+9,0])( rotate( 49, [0,0,1] )( rotate( 90, [1,0,0] )( bottom ) ) )
 )
-
 
 scad_render_to_file(
 	all, "snake.scad"

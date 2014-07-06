@@ -164,6 +164,7 @@ from random import *
 sys.path.append( "../../../" )
 from zack.lib.mat import *
 from zack.lib.pathmat import *
+from zack.lib.pycurve import *
 
 
 path = []
@@ -239,6 +240,9 @@ all = union()(
 	translate([51*cos(t)-10,51*sin(t)+9,0])( rotate( 49, [0,0,1] )( rotate( 90, [1,0,0] )( bottom ) ) )
 )
 
+#control_points = [ (0,0), (1,1), (2,1), (3,2), (4,5) ]
+#b = Bspline( control_points, [ 1, 1, 1, 1 ], 3 )
+#print b
 
 scad_render_to_file(
 	all, "snake.scad"
