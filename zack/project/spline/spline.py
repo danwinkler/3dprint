@@ -8,51 +8,61 @@ sys.path.append( "../../../" )
 from zack.lib.mat import *
 from zack.lib.pathmat import *
 
+import numpy as np
+from scipy.interpolate import interp1d
 
+x = np.linspace(0, 10, 10)
+y1 = [ 0, 1, 1, 1, 1, 2, 2, 2, 2, 1 ]
+f1 = interp1d(x, y1, kind='cubic')
 
-cubic_spline( p1, p2, p1d, p2d ):
-	// Solve for the 2D spline coef.  The z value of the verts is ignored.
-	a = Vec3()
-	b = Vec3()
-	c = Vec3()
-	d = Vec3()
-	a.x =   2*p1.x +  -2*p2.x +   1*p1d.x +   1*p2d.x;
-	a.y =   2*p1.y +  -2*p2.y +   1*p1d.y +   1*p2d.y;
+y2 = [ 0, 1, 1, 2, 2, 3, 2, 2, 2, 1 ]
+f2 = interp1d(x, y2, kind='cubic')
 
-	b.x =  -9*p1.x +   9*p2.x +  -5*p1d.x +  -4*p2d.x;
-	b.y =  -9*p1.y +   9*p2.y +  -5*p1d.y +  -4*p2d.y;
+points = []
+for i in xrange(0,40):
+	x = i/40.0 * 10.0
+	y1 = f1( x )
+	y2 = f2( x )
 
-	c.x =  12*p1.x + -12*p2.x +   8*p1d.x +   5*p2d.x;
-	c.y =  12*p1.y + -12*p2.y +   8*p1d.y +   5*p2d.y;
+	points.append( [x,y1*0.8,0] )
+	points.append( [x,y1,0] )
 
-	d.x =  -4*p1.x +   5*p2.x +  -4*p1d.x +  -2*p2d.x;
-	d.y =  -4*p1.y +   5*p2.y +  -4*p1d.y +  -2*p2d.y;
+	points.append( [x,y2*0.8,1] )
+	points.append( [x,y2,1] )
 
-	return a, b, c, d
+tris = []
+for i in xrange(0,40-1):
+	tris.append( [(i+0)*4+0,(i+0)*4+2,(i+1)*4+0] )
+	tris.append( [(i+0)*4+2,(i+1)*4+2,(i+1)*4+0] )
 
+	tris.append( [(i+0)*4+1,(i+0)*4+3,(i+1)*4+1] )
+	tris.append( [(i+0)*4+3,(i+1)*4+3,(i+1)*4+1] )
 
-path = [ Vec3([0,0,0]), Vec3([1,1,0]), Vec3([2,1,0]), Vec3([3,2,0]) ]
-for i in path:
-	
-	cubic_spline( p1, p2, p1d, p2d ):
+	tris.append( [(i+0)*4+0,(i+0)*4+1,(i+1)*4+0] )
+	tris.append( [(i+0)*4+1,(i+1)*4+1,(i+1)*4+0] )
 
+	tris.append( [(i+0)*4+2,(i+0)*4+3,(i+1)*4+2] )
+	tris.append( [(i+0)*4+3,(i+1)*4+3,(i+1)*4+2] )
 
+seg = polyhedron( points=points, triangles=tris )
 
-			float splineStep = Cald_splineStep;
-			float lastX = 0.f;
-			float lastY = 0.f;
-			for( float j=1.f; j<=2.f; j+=splineStep ) {
+e = 0.037
+segs = []
+for r in xrange(1,100):
+	segs.append(
+		rotate( 5*r, [1,0,0] )(
+			translate([0,exp(1.10*e*r),exp(e*r)])(
+				scale( [0.8*exp(e*r), 1.6*exp(e*r), 0.6*exp(e*r)] )(
+					seg
+				)
+			)
+		)
+	)
 
-				float x = result[0].x * j*j*j + result[1].x * j*j + result[2].x * j + result[3].x;
-				float y = result[0].y * j*j*j + result[1].y * j*j + result[2].y * j + result[3].y;
+all = union()(
+	segs
+)
 
-				if( j > 1.f ) {
-					float dx = x - lastX;
-					float dy = y - lastY;
-				}
-
-				shapePoints.add( FVec3(x,y,0.f) );
-
-				lastX = x;
-				lastY = y;
-			}
+scad_render_to_file(
+	all, "spline.scad"
+)
