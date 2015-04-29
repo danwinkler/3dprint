@@ -1,0 +1,3 @@
+[submodule "dan/lib/traceprint_python"]
+	path = dan/lib/traceprint_python
+	url = git@github.com:danwinkler/traceprint_python.git
