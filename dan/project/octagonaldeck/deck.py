@@ -11,10 +11,10 @@ from solid.utils import *
 
 # All units in Feet :/
 
-show_fire_pit = False
-show_level_1 = False
-show_level_2 = False
-show_level_3 = False
+show_fire_pit = True
+show_level_1 = True
+show_level_2 = True
+show_level_3 = True
 
 # converts inches to feet
 inches = lambda a: a/12.0
@@ -24,7 +24,7 @@ support_rad = .5
 support_height = 1.0
 level_1_max_sep = inches( 16 )
 
-fire_pit_radius = 1.5
+fire_pit_radius = 2
 fire_pit_height_above_deck = 2
 fire_pit_wall_width = inches(8)
 
@@ -222,6 +222,10 @@ if show_level_2:
 
     board_length = cross_piece( fire_pit_radius + inches(2) )
     o_board_length = cross_piece( medium_diagonal/2 )
+    m_dist = fire_pit_radius + inches(2) + (medium_diagonal/2 - fire_pit_radius + inches(2))*.5
+    m_board_length = cross_piece( m_dist )
+
+    print o_board_length
 
     for a in xrange(8):
         # To corner
@@ -260,6 +264,25 @@ if show_level_2:
                 )
             )
         ))
+
+        #Medium Fillers
+        parts.append( rotate( a=(a)*delta_a*.5 + delta_a*.25 ) (
+            translate( [m_dist,-m_board_length/2 + inches(2),second_support_height] ) (
+                color( [1,.5,0] ) (
+                    cube( [inches(2), m_board_length-inches(2), second_level_support_size] )
+                )
+            )
+        ))
+
+        #Third spike
+        parts.append( rotate( a=(a)*delta_a*.5  + delta_a*.25 ) (
+            translate( [m_dist + inches(2),0,second_support_height] ) (
+                color( [1,1,0] ) (
+                    cube( [medium_diagonal/2 - m_dist - inches(2), inches(2), second_level_support_size] )
+                )
+            )
+        ))
+
 
 
 if show_level_3:
