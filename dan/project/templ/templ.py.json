@@ -1,0 +1,15 @@
+{
+   "geometry": {
+      "main": {
+         "type": "union", 
+         "children": [
+            {
+               "slices": 8, 
+               "r": 10.0, 
+               "type": "cylinder", 
+               "height": 40.0
+            }
+         ]
+      }
+   }
+}

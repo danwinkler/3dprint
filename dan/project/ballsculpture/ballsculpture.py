@@ -5,8 +5,7 @@ from dan.lib.helper import Vec3
 import math
 import random
 
-from solid import *
-from solid.utils import *	
+from dan.lib.traceprint_python import *
 
 balls = []
 
@@ -47,15 +46,13 @@ parts = []
 
 neg_parts = []
 
-neg_parts.append( translate( [-500,-500,-1000] ) ( cube( 1000 ) ) )
+neg_parts.append( translate( 0, 0, -500 ) ( box( 1000, 1000, 1000 ) ) )
 
 for ball in balls:
 	ball[0].z = height - ball[0].z
-	parts.append( translate( ball[0].to_list() ) ( sphere( ball[1], segments=int(ball[1]*.5)+9 ) ) )
+	tlist = ball[0].to_list()
+	parts.append( translate( tlist[0], tlist[1], tlist[2] ) ( sphere( ball[1] ) ) ) #, segments=int(ball[1]*.5)+9 ) ) )
 	#neg_parts.append( translate( ball[0].to_list() ) ( sphere( ball[1]-2 ) ) )
-	
-
 
 print "Saving File"
-with open( __file__ + ".scad", "w" ) as f:
-	f.write( scad_render( union()( parts ) - union()( neg_parts ) ) )
+write_out( __file__ + ".json", difference( union( *parts ), union( *neg_parts ) ) )
