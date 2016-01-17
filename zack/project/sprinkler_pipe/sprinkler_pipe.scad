@@ -1,5 +1,5 @@
 
-len = 50;
+len = 50+30;
 rad = 14.5 / 2;
 
 difference() {

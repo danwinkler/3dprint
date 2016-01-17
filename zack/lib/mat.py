@@ -18,6 +18,11 @@ class Vec3:
 			self.y = copy.copy( v.y )
 			self.z = copy.copy( v.z )
 
+	def origin(self):
+		self.x = 0
+		self.y = 0
+		self.z = 0
+
 	def cross( self, b ):
 		assert( isinstance(b,Vec3) )
 		_x = self.y*b.z - self.z*b.y
@@ -54,6 +59,11 @@ class Vec3:
 		self.y *= b
 		self.z *= b
 
+	def div( self, b ):
+		self.x /= b
+		self.y /= b
+		self.z /= b
+
 	def mag2( self ):
 		return self.x * self.x + self.y * self.y + self.z * self.z
 
@@ -73,8 +83,6 @@ class Vec3:
 
 	def list( self ):
 		return [ self.x, self.y, self.z ]
-
-
 
 
 class Mat4:
