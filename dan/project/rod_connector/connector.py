@@ -15,41 +15,42 @@ inches_in_mm = 25.4
 half_in = inches_in_mm / 2.0
 
 parts = []
-neg_parts = []
-
-rad = half_in+.5
-outer_rad = rad + 5
-rad = rad / 2.0
-outer_rad = outer_rad/2.0
 
 def connector( vec_list, size_in_inches=half_in ):
 	size = size_in_inches+.5
 	rad = size / 2.0
 
-	avg = Vec3()
 	up_vec = Vec3( 0, 0, 1 )
 
+	vec_list = [v.normalize() for v in vec_list]
+
+	#Find average vector
+	avg = Vec3()
 	for v in vec_list:
-		v.normalize()
 		avg += v
-
 	avg.normalize()
-
 	a_rot_vec = up_vec.cross( avg )
 	a_rot_angle = math.acos( up_vec.dot( avg ) )
 
-	part = sphere( 30 )
+
+
+	parts = []
+	negs = []
+
+	def rot_helper( cross, angle, obj ):
+		return rotate( a=-math.degrees( a_rot_angle ), v=a_rot_vec.to_list() ) (
+			rotate( a=-math.degrees( angle ), v=cross.to_list() ) (
+				obj
+			)
+		)
 
 	for v in vec_list:
 		cross = up_vec.cross( v )
 		angle = math.acos( up_vec.dot( v ) )
-		part -= rotate( a=-math.degrees( a_rot_angle ), v=a_rot_vec.to_list() ) (
-			rotate( a=math.degrees(angle), v=cross.to_list() ) (
-				up( 10 ) ( cylinder( r=rad, h=30 ) )
-			)
-		)
+		parts.append( rot_helper( cross, angle, cylinder( r=size+3, h=60 ) ) )
+		negs.append( rot_helper( cross, angle, up(35)( cylinder( r=size, h=100 ) ) ) )
 
-	return part
+	return intersection()( hull() ( parts ), sphere( 60 ) ) - union() ( negs )
 
 parts.append( connector([
 	Vec3( 0, 0, 1 ),
