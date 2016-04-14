@@ -36,15 +36,24 @@ layers = []
 points = []
 connectors = []
 
+#Create points
 for h in range( layer_count ):
     layer = []
     for a in range( rot_count ):
-        angle = (math.pi*2 / rot_count) * a + offset * h
-        layer.append( Vec3( math.cos( angle ) * (500 - h*30), math.sin( angle ) * (500 - h*30), h * 300 ) )
+        angle_minus_offset = (math.pi*2 / rot_count) * a
+        angle = angle_minus_offset + offset * h
+        #dist = (500 - h*30) + math.cos( angle_minus_offset * 2 ) * 150 #Variation A
+        #dist = (500 - h*30) + math.cos( angle_minus_offset ) * 200 #Variation B
+        #dist = (500 - h*30) - math.cos( angle_minus_offset * 2 ) * 150 #Variation C
+        #dist = (500 - h*30) + (100 if a % 3 == 0 else 0) #Variation D
+        #dist = (500 - h*30) + (150 if a % 2 == 0 else -100) #Variation E
+        dist = (500 - h*30)
+        layer.append( Vec3( math.cos( angle ) * dist, math.sin( angle ) * dist, h * 300 ) )
     layers.append( layer )
 
 parts = []
 
+#Create connectors
 for i in range(len(layers)):
     layer = layers[i]
     for j in range(len(layer)):
