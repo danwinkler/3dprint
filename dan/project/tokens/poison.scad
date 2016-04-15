@@ -3,19 +3,21 @@
 difference() {
 	difference() {
 		difference() {
-			cylinder(h = 6, r = 20);
+			cylinder($fn = 36, h = 6, r = 20);
 			translate(v = [0, 0, -1]) {
-				cylinder(h = 3, r = 18);
+				cylinder($fn = 36, h = 3, r = 18);
 			}
 		}
 		translate(v = [0, 0, 4]) {
 			difference() {
-				cylinder(h = 3, r = 21);
-				cylinder(h = 3, r = 17.5000000000);
+				cylinder($fn = 36, h = 3, r = 21);
+				cylinder($fn = 36, h = 3, r = 17.5000000000);
 			}
 		}
 	}
 	translate(v = [0, 0, 4]) {
-		dxf_linear_extrude(file = "Symbols.dxf");
+		linear_extrude(height = 3) {
+			text(font = "mana", halign = "center", size = 16, text = "\uE618", valign = "center");
+		}
 	}
 }

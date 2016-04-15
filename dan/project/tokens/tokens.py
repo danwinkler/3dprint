@@ -10,9 +10,9 @@ from solid import *
 from solid.utils import *
 
 def make_token():
-    token = cylinder( r=20, h=6 )
-    token -= down( 1 ) ( cylinder( r=18, h=3 ) )
-    token -= up( 4 ) ( cylinder( r=21, h=3 ) - cylinder( r=17.5, h=3 ) )
+    token = cylinder( r=20, h=6, segments=36 )
+    token -= down( 1 ) ( cylinder( r=18, h=3, segments=36 ) )
+    token -= up( 4 ) ( cylinder( r=21, h=3, segments=36 ) - cylinder( r=17.5, h=3, segments=36 ) )
     return token
 
 def plus_one():
@@ -22,12 +22,32 @@ def neg_one():
     return linear_extrude( height=3 ) ( text( "-1", size=16, valign="center", halign="center" ) )
 
 def poison():
-    return dxf_linear_extrude( "Symbols.dxf" )
+    return linear_extrude( height=3 ) ( text( "\uE618", size=16, font="mana", valign="center", halign="center" ) )
+
+def white():
+    return linear_extrude( height=3 ) ( text( "\uE600", size=16, font="mana", valign="center", halign="center" ) )
+
+def blue():
+    return linear_extrude( height=3 ) ( text( "\uE601", size=16, font="mana", valign="center", halign="center" ) )
+
+def black():
+    return linear_extrude( height=3 ) ( text( "\uE602", size=16, font="mana", valign="center", halign="center" ) )
+
+def red():
+    return linear_extrude( height=3 ) ( text( "\uE603", size=16, font="mana", valign="center", halign="center" ) )
+
+def green():
+    return linear_extrude( height=3 ) ( text( "\uE604", size=16, font="mana", valign="center", halign="center" ) )
 
 funs = [
     plus_one,
     neg_one,
-    poison
+    poison,
+    white,
+    blue,
+    black,
+    red,
+    green
 ]
 
 for f in funs:

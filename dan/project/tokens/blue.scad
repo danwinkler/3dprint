@@ -17,7 +17,7 @@ difference() {
 	}
 	translate(v = [0, 0, 4]) {
 		linear_extrude(height = 3) {
-			text(halign = "center", size = 16, text = "-1", valign = "center");
+			text(font = "mana", halign = "center", size = 16, text = "\uE601", valign = "center");
 		}
 	}
 }
