@@ -104,6 +104,7 @@ make_port( -90, [0, 1, 0] )
 parts.append( down( outer_rad ) ( cylinder( r=20, h=outer_rad ) ) )
 '''
 
-print "Saving File"
-with open( __file__ + ".scad", "w" ) as f:
-	f.write( scad_render( union()( parts ) ) )
+if __name__ == "__main__":
+	print "Saving File"
+	with open( __file__ + ".scad", "w" ) as f:
+		f.write( scad_render( union()( parts ) ) )
