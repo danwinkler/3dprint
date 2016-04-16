@@ -18,6 +18,9 @@ def make_token():
 def plus_one():
     return linear_extrude( height=3 ) ( text( "+1", size=16, valign="center", halign="center" ) )
 
+def plus_five():
+    return linear_extrude( height=3 ) ( text( "+5", size=16, valign="center", halign="center" ) )
+
 def neg_one():
     return linear_extrude( height=3 ) ( text( "-1", size=16, valign="center", halign="center" ) )
 
@@ -41,6 +44,7 @@ def green():
 
 funs = [
     plus_one,
+    plus_five,
     neg_one,
     poison,
     white,
