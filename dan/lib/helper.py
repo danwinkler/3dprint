@@ -4,7 +4,6 @@ from solid.utils import *
 import random
 
 class Vec3:
-
 	def __init__( self, x=0, y=0, z=0 ):
 		self.x = float(x)
 		self.y = float(y)
@@ -107,6 +106,27 @@ class Vec3:
 	def __str__( self ):
 		return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
 
+#http://www.wyrmtale.com/blog/2013/115/2d-line-intersection-in-c
+def line_line_intersect_2d( ps1, pe1, ps2, pe2 ):
+	# Get A,B,C of first line - points : ps1 to pe1
+	A1 = pe1.y-ps1.y
+	B1 = ps1.x-pe1.x
+	C1 = A1*ps1.x+B1*ps1.y
+
+	# Get A,B,C of second line - points : ps2 to pe2
+	A2 = pe2.y-ps2.y
+	B2 = ps2.x-pe2.x
+	C2 = A2*ps2.x+B2*ps2.y
+
+	# Get delta and check if the lines are parallel
+	delta = A1*B2 - A2*B1
+	if delta == 0:
+		raise ArithmeticError( "Lines are parallel" )
+
+	# now return the Vector2 intersection point
+	return Vec3( (B2*C1 - B1*C2)/delta, (A1*C2 - A2*C1)/delta )
+
+
 def cyl_on_vec( v, r=1 ):
 	length = v.length()
 	v.normalize()
@@ -115,6 +135,16 @@ def cyl_on_vec( v, r=1 ):
 	angle = math.acos( up_vec.dot( v ) )
 	return rotate( a=math.degrees( angle ), v=cross.to_list() ) (
 		cylinder( h=length, r=r )
+	)
+
+def rot_on_vec( v, obj ):
+	length = v.length()
+	v.normalize()
+	up_vec = Vec3( 0, 0, 1 )
+	cross = up_vec.cross( v )
+	angle = math.acos( up_vec.dot( v ) )
+	return rotate( a=math.degrees( angle ), v=cross.to_list() ) (
+		obj
 	)
 
 #Given a list of points and a width function,
