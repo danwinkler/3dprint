@@ -34,7 +34,8 @@ for h in range( layer_count ):
             layer.append( Vec3( math.cos( angle ) * dist, math.sin( angle ) * dist, h * 300 ) )
     layers.append( layer )
 
-parts = layer_structure.create_from_layers( layers )
+parts = layer_structure.create_from_layers( layers, save_name="varE" )
+layer_structure.create_from_layers_stick_list( layers, save_name="varE" )
 
 print "Saving File"
 with open( __file__ + ".scad", "w" ) as f:

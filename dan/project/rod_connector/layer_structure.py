@@ -12,6 +12,54 @@ from solid.utils import *
 
 import connector as conn
 
+def create_from_layers_stick_list( layers, save_name ):
+    sticks = []
+    for i in range(len(layers)):
+        layer = layers[i]
+        for j in range(len(layer)):
+            p = layer[j]
+            if not p:
+                continue
+
+            #To next point on layer
+            p_next = layer[(j+1)%len(layer)]
+            if p_next:
+                next_vec = p_next.copy()
+                next_vec -= p
+                sticks.append( next_vec.length() )
+
+        for j in range(len(layer)):
+            p = layer[j]
+            if not p:
+                continue
+
+            #To previous point above
+            if i+i < len(layers):
+                p_prev_above = layers[i+1][(j-1 if j>0 else len(layer)-1)]
+                if p_prev_above:
+                    prev_above_vec = p_prev_above.copy()
+                    prev_above_vec -= p
+                    sticks.append( prev_above_vec.length() )
+
+            #To point above on next layer
+            if i+1 < len(layers):
+                p_above = layers[i+1][j]
+                if p_above:
+                    above_vec = p_above.copy()
+                    above_vec -= p
+                    sticks.append( above_vec.length() )
+
+    stick_list = [str(l) + " " + str(l*0.0393701) + " " + str(i) for i, l in enumerate( sticks )]
+    #stick_list.sort()
+    stick_list = "\n".join( stick_list )
+
+    directory = "designs/" + save_name
+
+    with open( directory + ".txt", "w" ) as f:
+        f.write( stick_list )
+
+
+
 def create_from_layers( layers, save_name=None ):
     parts = []
     connectors = []

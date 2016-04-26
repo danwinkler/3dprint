@@ -1,5 +1,5 @@
-
-
+angle=0;
+rotate(a=angle,v=[0,0,1]) {
 union() {
 	difference() {
 		intersection() {
@@ -70,4 +70,4 @@ union() {
 			}
 		}
 	}
-}
+}}

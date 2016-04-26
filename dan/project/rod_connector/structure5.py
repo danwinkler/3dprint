@@ -25,9 +25,12 @@ for h in range( layer_count ):
     for a in range( rot_count ):
         angle_minus_offset = (math.pi*2 / rot_count) * a
         angle = angle_minus_offset + offset * h
-        dist = (500 - h*30) - math.cos( angle_minus_offset * 2 ) * 150 #Variation C
+        #dist = (500 - h*30) - math.cos( angle_minus_offset * 2 ) * 150 #Variation C
         #dist = (500 - h*30) + (100 if a % 3 == 0 else 0) #Variation D
-        #dist = (500 - abs(h)*30)
+        height = float(h) / float(layer_count)
+        height *= math.pi
+        dist = (500 - math.sin(height)*250 + h**3 * .6)
+
 
         #For door
         if False and h < 4 and h > 0 and a == 0:
