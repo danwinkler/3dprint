@@ -79,6 +79,22 @@ def connector( vec_list, size_in_inches=half_in ):
 		exclude_list.append( big_vec )
 
 	#Okay so we didn't find a flat spot using two vectors. Now we have to find one using three
+	big_set = None
+	big_size = 0
+	for i in xrange( len(vec_list) ):
+		for j in xrange( len(vec_list) ):
+			if j == i:
+				continue
+			for k in xrange( len(vec_list) ):
+				if k == i or k == j:
+					continue
+
+				v_a = vec_list[j] - vec_list[i]
+				v_b = vec_list[k] - vec_list[i]
+
+				#Check to make sure nobody else is inside triangle
+
+
 
 	parts = []
 	negs = []
