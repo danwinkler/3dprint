@@ -24,6 +24,35 @@ def connector( vec_list, size_in_inches=half_in ):
 
 	vec_list = [v.normalize() for v in vec_list]
 
+	#Find down vector to rotate to by finding the largest angle between two vectors and then
+	#Taking the cross product, then checking each direction to make sure it's clear to rotate down from
+	#If it's not clear, loop around and try again
+
+	down_vec = Vec3( 0, 0, -1 )
+	exclude_list = [] #if the pair of vecs isn't clear on either side, try again but don't look at that
+	while(True): #while we havent found the vector we want
+		big_vec = None
+		big_angle = 0
+		for i in xrange( len(vec_list) ):
+			for j in xrange( i+1, len(vec_list) ): #start at i+1 so that we don't test i,j if we've already tested j,i
+				if i == j:
+					continue
+				if (i,j) in exclude_list:
+					continue
+
+				angle = math.acos( vec_list[i].dot( vec_list[j] ) )
+				if angle > big_angle:
+					big_vec = (i, j)
+
+
+		#Check for vectors on either side, if one side is clear, that's our side
+		#TODO implement
+
+		if no vectors on a side:
+			set down_vec
+			break
+
+
 	#Find average vector
 	avg = Vec3()
 	for v in vec_list:
