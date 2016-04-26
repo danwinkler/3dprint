@@ -19,6 +19,7 @@ parts = []
 def connector( vec_list, size_in_inches=half_in ):
 	size = size_in_inches+.5
 	rad = size / 2.0
+	rod_length = 50
 
 	up_vec = Vec3( 0, 0, 1 )
 
@@ -49,7 +50,6 @@ def connector( vec_list, size_in_inches=half_in ):
 
 		#If big_vec == None, we failed to find a flat spot between two vectors
 		if big_vec == None:
-			print "down_vec calc failed"
 			found_down_vec = False
 			break
 
@@ -57,7 +57,7 @@ def connector( vec_list, size_in_inches=half_in ):
 		def is_clear( vec ):
 			for i in xrange( len(vec_list) ):
 				if i in big_vec:
-					pass
+					continue
 				#angle needs to be >90 (math.pi/2) to make sure its on the other side
 				angle = math.acos( vec.dot( vec_list[i] ) )
 				if angle < math.pi/2:
@@ -78,54 +78,146 @@ def connector( vec_list, size_in_inches=half_in ):
 		#Welp this pair is bad, add to exclude_list and try again
 		exclude_list.append( big_vec )
 
+	def triangle_intersection( v1, v2, v3, o, d ):
+		EPSILON = .000001
+		#Find vectors for two edges sharing V1
+		e1 = v2 - v1
+		e2 = v3 - v1
+		#Begin calculating determinant - also used to calculate u parameter
+		p = d.cross( e2 )
+		#if determinant is near zero, ray lies in plane of triangle
+		det = e1.dot( p )
+		#NOT CULLING
+		if det > -EPSILON and det < EPSILON:
+			return False;
+		inv_det = 1.0 / det;
+
+		#calculate distance from V1 to ray origin
+		t = o - v1;
+
+		#Calculate u parameter and test bound
+		u = t.dot( p ) * inv_det;
+		#The intersection lies outside of the triangle
+		if u < 0.0 or u > 1.0:
+			return False
+
+		#Prepare to test v parameter
+		q = t.cross( e1 );
+
+		#Calculate V parameter and test bound
+		v = d.dot( q ) * inv_det;
+		#The intersection lies outside of the triangle
+		if v < 0.0 or u + v > 1.0:
+			return False
+
+		t = e2.dot( q ) * inv_det;
+
+		if t > EPSILON:
+			return True
+
+		return False
+
 	#Okay so we didn't find a flat spot using two vectors. Now we have to find one using three
-	big_set = None
-	big_size = 0
-	for i in xrange( len(vec_list) ):
-		for j in xrange( len(vec_list) ):
-			if j == i:
-				continue
-			for k in xrange( len(vec_list) ):
-				if k == i or k == j:
+	if not found_down_vec or True:
+		big_down = None
+		big_size = 0
+		big_shift = 0
+		for i in xrange( len(vec_list) ):
+			for j in xrange( len(vec_list) ):
+				if j == i:
 					continue
+				for k in xrange( len(vec_list) ):
+					if k == i or k == j:
+						continue
 
-				v_a = vec_list[j] - vec_list[i]
-				v_b = vec_list[k] - vec_list[i]
+					v_a = vec_list[j] - vec_list[i]
+					v_b = vec_list[k] - vec_list[i]
+					v_c = v_a - v_b
 
-				#Check to make sure nobody else is inside triangle
+					#Check to make sure nobody else is inside triangle
+					good = True
+					for l in xrange( len(vec_list) ):
+						if l in (i, j, k):
+							continue
 
+						hit = triangle_intersection( vec_list[i], vec_list[j], vec_list[k], Vec3(), vec_list[l] )
+						if hit:
+							good = False
+							break
 
+					if good:
+						#TODO: make this score like the area of the triangle
+						score = v_a.length() + v_b.length() + v_c.length()
+						if score > big_size:
+							big_size = score
+							#TODO figure out which direction to point
+							big_down = v_b.cross( v_a )
+							#big_down = v_a.cross( v_b )
+							down = Vec3( .000001, .000001, -1 )
+							cross = down.cross( big_down )
+							angle = math.acos( down.dot( big_down ) )
+							a = vec_list[i].rotate( cross, -angle )
+							big_shift = a.z*rod_length - rad - 3
+
+		if big_down != None:
+			print "found three side"
+			down_vec = big_down
+			vert_shift = big_shift
+			found_down_vec = True
 
 	parts = []
 	negs = []
 	flats = []
 
+	orig_down = Vec3( .0000001, .0000001, -1 )
+	down_vec.normalize()
+	down_cross = orig_down.cross( down_vec )
+	down_angle = math.acos( orig_down.dot( down_vec ) )
+
+	#transform all vectors
+	new_vecs = []
+	for v in vec_list:
+		new_vecs.append( v.rotate( down_cross, down_angle ) )
+
+
+	if down_cross.x == 0 and down_cross.y == 0 and down_cross.z == 0:
+		down_cross = Vec3( 0, 0, 1 )
+		down_angle = 0
+
 	def rot_helper( cross, angle, obj ):
-		return rotate( a=-math.degrees( angle ), v=cross.to_list() ) (
-				obj
-			)
+		return rotate( a=math.degrees( angle ), v=cross.to_list() ) (
+			obj
+		)
+
+	def rot_final( obj ):
+		return rotate( a=-math.degrees( down_angle ), v=down_cross.to_list() ) (
+			obj
+		)
 
 	for v in vec_list:
 		cross = up_vec.cross( v )
 		angle = math.acos( up_vec.dot( v ) )
-		parts.append( rot_helper( cross, angle, cylinder( r=rad+3, h=50 ) ) )
+		parts.append( rot_helper( cross, angle, cylinder( r=(rad+3), h=rod_length ) ) )
 		negs.append( rot_helper( cross, angle, up(25)( cylinder( r=rad, h=100 ) ) ) )
+
+		rot_v = v.rotate( down_cross, -down_angle )
 		flats.append(
-			rotate( v=[0,0,1], a=math.degrees(math.atan2( -v.y, -v.x )) ) (
-				translate( [0, -rad, -rad-3 if vert_shift == 0 else vert_shift] ) ( cube( [50, size, .1] ) )
+			rotate( v=[0,0,1], a=math.degrees(math.atan2( -rot_v.y, -rot_v.x )) ) (
+				translate( [0, -rad, 0] ) ( cube( [rod_length, size, .1] ) )
 			)
 		)
 
 	if not found_down_vec:
 		flats = []
 
-	part = intersection()( hull() ( parts + flats ), sphere( 60 ) ) - union() ( negs ) + flats
-	orig_down = Vec3( 0, 0, -1 )
-	down_cross = orig_down.cross( down_vec )
-	down_angle = math.acos( orig_down.dot( down_vec ) )
-	part = rotate( a=math.degrees( down_angle ), v=down_cross.to_list() ) ( part )
+	part = rot_final( intersection()( hull() ( parts ), sphere( 60 ) ) )
+	part += translate( [0, 0, vert_shift if vert_shift != 0 else -(rad + 3)] ) ( union() ( flats ) )
+	part -= rot_final( union() ( negs ) )
+	#part = rotate( a=-math.degrees( down_angle ), v=down_cross.to_list() ) ( part )
+
 	return part
 
+'''
 parts.append( connector([
 	Vec3( 0, 0, 1 ),
 	Vec3( 1, 0, 1 ),
@@ -133,49 +225,6 @@ parts.append( connector([
 	Vec3( 0, 1, 0 ),
 	Vec3( 1, 0, 0 )
 ] ) )
-
-'''
-def port():
-	return translate( [0, 0, 0] ) (
-		cylinder(r=outer_rad, h=25)
-	)
-
-def port_neg():
-	return translate( [0, 0, 0] ) (
-		up(5)(cylinder(r=rad, h=30)),
-		translate( [0, -5, 17] ) ( rotate( a=90, v=[1, 0, 0] )( cylinder(r=1.5, h=6, segments=12) ) )
-	)
-
-def make_port( a, v, r=0 ):
-	p = [port()]
-	if a == 90 or a == -90:
-		p.append( translate( [-outer_rad, -outer_rad, 0] ) ( cube( [outer_rad*2, outer_rad*2, 25] ) ) )
-	parts.append(
-		rotate( a=a, v=v ) (
-			up( 15 ) (
-				p
-			)
-		)
-	)
-
-	neg_parts.append(
-		rotate( a=a, v=v ) (
-			up( 15 ) (
-				rotate( a=r, v=[0,0,1] ) (
-					port_neg()
-				)
-			)
-		)
-	)
-parts.append( sphere( r=20 ) - translate( [-100, -100, -100] ) ( cube( [200,200,100] ) ) )
-
-make_port( 45, [0, 1, 0] )
-make_port( 0, [0, 1, 0], r=45 )
-make_port( 45, [1, 0, 0] )
-make_port( -60, [1, 0, 0], r=-90 )
-make_port( -90, [0, 1, 0] )
-
-parts.append( down( outer_rad ) ( cylinder( r=20, h=outer_rad ) ) )
 '''
 
 if __name__ == "__main__":
