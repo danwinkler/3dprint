@@ -29,6 +29,8 @@ def connector( vec_list, size_in_inches=half_in ):
 	#If it's not clear, loop around and try again
 
 	down_vec = Vec3( 0, 0, -1 )
+	vert_shift = 0
+	found_down_vec = True
 	exclude_list = [] #if the pair of vecs isn't clear on either side, try again but don't look at that
 	while(True): #while we havent found the vector we want
 		big_vec = None
@@ -43,43 +45,70 @@ def connector( vec_list, size_in_inches=half_in ):
 				angle = math.acos( vec_list[i].dot( vec_list[j] ) )
 				if angle > big_angle:
 					big_vec = (i, j)
+					big_angle = angle
 
-
-		#Check for vectors on either side, if one side is clear, that's our side
-		#TODO implement
-
-		if no vectors on a side:
-			set down_vec
+		#If big_vec == None, we failed to find a flat spot between two vectors
+		if big_vec == None:
+			print "down_vec calc failed"
+			found_down_vec = False
 			break
 
+		#Check for vectors on either side, if one side is clear, that's our side
+		def is_clear( vec ):
+			for i in xrange( len(vec_list) ):
+				if i in big_vec:
+					pass
+				#angle needs to be >90 (math.pi/2) to make sure its on the other side
+				angle = math.acos( vec.dot( vec_list[i] ) )
+				if angle < math.pi/2:
+					return False
+			return True
 
-	#Find average vector
-	avg = Vec3()
-	for v in vec_list:
-		avg += v
-	avg.normalize()
-	a_rot_vec = up_vec.cross( avg )
-	a_rot_angle = math.acos( up_vec.dot( avg ) )
+		cross = vec_list[big_vec[0]].cross( vec_list[big_vec[1]] )
+		if is_clear( cross ):
+			down_vec = cross
+			break
 
+		#Try other side...
+		cross *= -1
+		if is_clear( cross ):
+			down_vec = cross
+			break
 
+		#Welp this pair is bad, add to exclude_list and try again
+		exclude_list.append( big_vec )
+
+	#Okay so we didn't find a flat spot using two vectors. Now we have to find one using three
 
 	parts = []
 	negs = []
+	flats = []
 
 	def rot_helper( cross, angle, obj ):
-		return rotate( a=-math.degrees( a_rot_angle ), v=a_rot_vec.to_list() ) (
-			rotate( a=-math.degrees( angle ), v=cross.to_list() ) (
+		return rotate( a=-math.degrees( angle ), v=cross.to_list() ) (
 				obj
 			)
-		)
 
 	for v in vec_list:
 		cross = up_vec.cross( v )
 		angle = math.acos( up_vec.dot( v ) )
-		parts.append( rot_helper( cross, angle, cylinder( r=size+3, h=60 ) ) )
-		negs.append( rot_helper( cross, angle, up(35)( cylinder( r=size, h=100 ) ) ) )
+		parts.append( rot_helper( cross, angle, cylinder( r=rad+3, h=50 ) ) )
+		negs.append( rot_helper( cross, angle, up(25)( cylinder( r=rad, h=100 ) ) ) )
+		flats.append(
+			rotate( v=[0,0,1], a=math.degrees(math.atan2( -v.y, -v.x )) ) (
+				translate( [0, -rad, -rad-3 if vert_shift == 0 else vert_shift] ) ( cube( [50, size, .1] ) )
+			)
+		)
 
-	return intersection()( hull() ( parts ), sphere( 60 ) ) - union() ( negs )
+	if not found_down_vec:
+		flats = []
+
+	part = intersection()( hull() ( parts + flats ), sphere( 60 ) ) - union() ( negs ) + flats
+	orig_down = Vec3( 0, 0, -1 )
+	down_cross = orig_down.cross( down_vec )
+	down_angle = math.acos( orig_down.dot( down_vec ) )
+	part = rotate( a=math.degrees( down_angle ), v=down_cross.to_list() ) ( part )
+	return part
 
 parts.append( connector([
 	Vec3( 0, 0, 1 ),

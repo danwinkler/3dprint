@@ -19,7 +19,7 @@ def output_stls():
     for i in xrange(60):
         subprocess.call( [pgm, "-o", "stls/varE/" + str(i) + ".stl", "designs/varE/" + str(i) + ".scad"] )
 
-#get_connector_images()
+get_connector_images()
 #get_structure_images()
 #rotate_scad_file()
-output_stls()
+#output_stls()
