@@ -10,8 +10,8 @@ from solid import *
 from solid.utils import *
 
 def make_token():
-    token = cylinder( r=10, h=6, segments=36 )
-    token -= down( 1 ) ( cylinder( r=9, h=3, segments=36 ) )
+    token = cylinder( r=10, h=5.5, segments=36 )
+    token -= down( 1 ) ( cylinder( r=8.5, h=3.5, segments=36 ) )
     token -= up( 4 ) ( cylinder( r=10.5, h=3, segments=36 ) - cylinder( r=8, h=3, segments=36 ) )
     return token
 
@@ -56,7 +56,7 @@ funs = [
 
 for f in funs:
     token = make_token()
-    token -= translate( [0,0,4] ) (
+    token -= translate( [0,0,4.5] ) (
         f()
     )
 
@@ -66,8 +66,8 @@ for f in funs:
 
 import os, subprocess
 
-#pgm = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
-pgm = "C:\Program Files (x86)\OpenSCAD\openscad.exe"
+pgm = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
+#pgm = "C:\Program Files (x86)\OpenSCAD\openscad.exe"
 
 def get_structure_images():
     files = os.listdir(".")
