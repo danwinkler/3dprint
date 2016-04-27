@@ -21,7 +21,7 @@ def connector( vec_list, size_in_inches=half_in ):
 	rad = size / 2.0
 	rod_length = 50
 
-	up_vec = Vec3( 0, 0, 1 )
+	up_vec = Vec3( .000001, .000001, 1 )
 
 	vec_list = [v.normalize() for v in vec_list]
 
@@ -177,19 +177,16 @@ def connector( vec_list, size_in_inches=half_in ):
 	#transform all vectors
 	new_vecs = []
 	for v in vec_list:
-		new_vecs.append( v.rotate( down_cross, down_angle ) )
+		new_vecs.append( v.rotate( down_cross, -down_angle ) )
 
-
-	if down_cross.x == 0 and down_cross.y == 0 and down_cross.z == 0:
-		down_cross = Vec3( 0, 0, 1 )
-		down_angle = 0
-
+	vec_list = new_vecs
 	def rot_helper( cross, angle, obj ):
 		return rotate( a=math.degrees( angle ), v=cross.to_list() ) (
 			obj
 		)
 
 	def rot_final( obj ):
+		return obj
 		return rotate( a=-math.degrees( down_angle ), v=down_cross.to_list() ) (
 			obj
 		)
@@ -200,9 +197,9 @@ def connector( vec_list, size_in_inches=half_in ):
 		parts.append( rot_helper( cross, angle, cylinder( r=(rad+3), h=rod_length ) ) )
 		negs.append( rot_helper( cross, angle, up(25)( cylinder( r=rad, h=100 ) ) ) )
 
-		rot_v = v.rotate( down_cross, -down_angle )
+		rot_v = v
 		flats.append(
-			rotate( v=[0,0,1], a=math.degrees(math.atan2( -rot_v.y, -rot_v.x )) ) (
+			rotate( v=[0,0,1], a=-math.degrees(math.atan2( -rot_v.y, -rot_v.x )) ) (
 				translate( [0, -rad, 0] ) ( cube( [rod_length, size, .1] ) )
 			)
 		)
