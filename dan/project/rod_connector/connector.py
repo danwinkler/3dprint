@@ -15,7 +15,7 @@ inches_in_mm = 25.4
 half_in = inches_in_mm / 2.0
 
 hole_depth = 25
-connector_length = 50
+connector_length = 45
 size = half_in+.5
 rad = size/2
 wall_thickness = 3

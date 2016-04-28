@@ -131,6 +131,8 @@ def create_from_layers( layers, save_name=None ):
         for i in range(len(connectors)):
             print i
             with open( directory + "/" + str(i) + ".scad", "w" ) as f:
-                f.write( scad_render( conn.connector_redux( connectors[i] ) ) )
+                c = conn.connector_redux( connectors[i] )
+                c -= up( 2 ) ( rotate( v=[0,1,0], a=180 ) ( linear_extrude( height=3 ) ( text( str(i), size=8, valign="center", halign="center" ) ) ) )
+                f.write( scad_render( c ) )
 
     return parts
