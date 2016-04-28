@@ -1,7 +1,13 @@
 import subprocess
 import math
+import platform
 
-pgm = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
+system = platform.system()
+if system == "Windows":
+    pgm = "C:\Program Files (x86)\OpenSCAD\openscad.exe"
+else:
+    pgm = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
+
 
 def get_structure_images():
     for i in xrange(1,8):
@@ -9,6 +15,7 @@ def get_structure_images():
 
 def get_connector_images():
     for i in xrange(60):
+        print i
         subprocess.call( [pgm, "-o", "images/varE/" + str(i) + ".png", "designs/varE/" + str(i) + ".scad"] )
 
 def rotate_scad_file():
@@ -17,9 +24,10 @@ def rotate_scad_file():
 
 def output_stls():
     for i in xrange(60):
+        print i
         subprocess.call( [pgm, "-o", "stls/varE/" + str(i) + ".stl", "designs/varE/" + str(i) + ".scad"] )
 
-get_connector_images()
+#get_connector_images()
 #get_structure_images()
 #rotate_scad_file()
-#output_stls()
+output_stls()

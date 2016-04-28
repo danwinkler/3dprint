@@ -138,9 +138,10 @@ def cyl_on_vec( v, r=1 ):
 	)
 
 def rot_on_vec( v, obj ):
+	v = v.copy()
 	length = v.length()
 	v.normalize()
-	up_vec = Vec3( 0, 0, 1 )
+	up_vec = Vec3( .000001, .000001, 1 )
 	cross = up_vec.cross( v )
 	angle = math.acos( up_vec.dot( v ) )
 	return rotate( a=math.degrees( angle ), v=cross.to_list() ) (
