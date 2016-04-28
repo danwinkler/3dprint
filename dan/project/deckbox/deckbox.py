@@ -69,5 +69,8 @@ parts.append( base )
 parts.append( translate( [-(width+wall_thickness*2+5), 0, 1] ) ( top ) )
 
 print "Saving File"
-with open( __file__ + ".scad", "w" ) as f:
-    f.write( scad_render( union() ( parts ) ) )
+with open( __file__ + "base" + ".scad", "w" ) as f:
+    f.write( scad_render( union() ( base ) ) )
+
+with open( __file__ + "top" + ".scad", "w" ) as f:
+    f.write( scad_render( union() ( top ) ) )
