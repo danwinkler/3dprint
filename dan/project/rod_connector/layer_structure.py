@@ -12,6 +12,8 @@ from solid.utils import *
 
 import connector as conn
 
+stick_offset = 20 + 20
+
 def create_from_layers_stick_list( layers, save_name ):
     sticks = []
     for i in range(len(layers)):
@@ -49,7 +51,8 @@ def create_from_layers_stick_list( layers, save_name ):
                     above_vec -= p
                     sticks.append( above_vec.length() )
 
-    stick_list = [str(l) + " " + str(l*0.0393701) + " " + str(i) for i, l in enumerate( sticks )]
+    sticks = [l-stick_offset for l in sticks]
+    stick_list = [str(i) + " " + str(l) + " " + str(l*0.0393701) for i, l in enumerate( sticks )]
     #stick_list.sort()
     stick_list = "\n".join( stick_list )
 
