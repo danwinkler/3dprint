@@ -153,7 +153,8 @@ def find_3_sided_downvec( vec_list ):
 						if dot > 0:
 							angle *= -1
 						a = vec_list[i].copy().rotate( cross, angle )
-						big_shift = -a.z*connector_length + rad + 3
+						#big_shift = -a.z*connector_length + rad + 3
+						big_shift = -vec_list[i].z * connector_length - rad# - 3
 
 	if big_down != None:
 		return True, big_down, big_shift
@@ -195,7 +196,7 @@ def build_connector( vec_list, offset ):
 	part = hull() ( union() ( flats ) + part ) #We hull with the flat pieces on the xy axis to print easily
 	#part += flats
 	part -= up( offset ) ( holes ) #cut the holes, shifted up because we already shifted the part
-	part -= translate( [-100, -100, -100] ) ( cube( [200, 200, 100] ) ) #in case theres a little bit below ground, cut it off
+	#part -= translate( [-100, -100, -100] ) ( cube( [200, 200, 100] ) ) #in case theres a little bit below ground, cut it off
 
 	return part
 
@@ -213,6 +214,15 @@ def connector_redux( vec_list ):
 		print "Couldn't find downvec"
 
 	vec_list = [rotate_to( v, down_vec ) for v in vec_list]
+
+	offset = 1000
+	for vec in vec_list:
+		if vec.z < offset:
+			offset = vec.z
+
+	offset *= connector_length
+	offset -= rad + 3
+	offset *= -1
 
 	orig_down = Vec3( .0000001, .0000001, -1 ).normalize()
 	axis = orig_down.cross( down_vec )
