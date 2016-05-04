@@ -196,7 +196,7 @@ def build_connector( vec_list, offset ):
 	part = hull() ( union() ( flats ) + part ) #We hull with the flat pieces on the xy axis to print easily
 	#part += flats
 	part -= up( offset ) ( holes ) #cut the holes, shifted up because we already shifted the part
-	#part -= translate( [-100, -100, -100] ) ( cube( [200, 200, 100] ) ) #in case theres a little bit below ground, cut it off
+	part -= translate( [-100, -100, -100] ) ( cube( [200, 200, 100] ) ) #in case theres a little bit below ground, cut it off
 
 	return part
 
