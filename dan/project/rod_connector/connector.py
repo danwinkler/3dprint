@@ -42,7 +42,7 @@ def find_2_sided_downvec( vec_list ):
 
 		#If big_vec == None, we failed to find a flat spot between two vectors
 		if big_vec == None:
-			return False, False, False
+			return False, False
 
 		#Check for vectors on either side, if one side is clear, that's our side
 		def is_clear( vec ):
@@ -57,12 +57,12 @@ def find_2_sided_downvec( vec_list ):
 
 		cross = vec_list[big_vec[0]].cross( vec_list[big_vec[1]] )
 		if is_clear( cross ):
-			return True, cross, rad + wall_thickness
+			return True, cross
 
 		#Try other side...
 		cross *= -1
 		if is_clear( cross ):
-			return True, cross, rad + wall_thickness
+			return True, cross
 
 		#Welp this pair is bad, add to exclude_list and try again
 		exclude_list.append( big_vec )
@@ -146,19 +146,9 @@ def find_3_sided_downvec( vec_list ):
 						if big_down.dot( vec_list[i] ) < 0: #Use the dot to figure out which side I think..
 							big_down *= -1
 
-						down = Vec3( .000001, .000001, -1 )
-						cross = down.cross( big_down )
-						dot = down.dot( big_down )
-						angle = math.acos( dot )
-						if dot > 0:
-							angle *= -1
-						a = vec_list[i].copy().rotate( cross, angle )
-						#big_shift = -a.z*connector_length + rad + 3
-						big_shift = -vec_list[i].z * connector_length - rad# - 3
-
 	if big_down != None:
-		return True, big_down, big_shift
-	return False, False, False
+		return True, big_down
+	return False, False
 
 def rotate_to( vec, down_vec ):
 	vec = vec.copy()
@@ -194,7 +184,6 @@ def build_connector( vec_list, offset ):
 	part = intersection() ( part, sph ) #then we intersect with a sphere to round the ends
 	part = up( offset ) ( part ) #Shift the part up in prep for the flat hull
 	part = hull() ( union() ( flats ) + part ) #We hull with the flat pieces on the xy axis to print easily
-	#part += flats
 	part -= up( offset ) ( holes ) #cut the holes, shifted up because we already shifted the part
 	part -= translate( [-100, -100, -100] ) ( cube( [200, 200, 100] ) ) #in case theres a little bit below ground, cut it off
 
@@ -203,10 +192,10 @@ def build_connector( vec_list, offset ):
 def connector_redux( vec_list ):
 	vec_list = vec_list = [v.copy().normalize() for v in vec_list]
 
-	found, down_vec, offset = find_2_sided_downvec( vec_list )
+	found, down_vec = find_2_sided_downvec( vec_list )
 
 	if not found:
-		found, down_vec, offset = find_3_sided_downvec( vec_list )
+		found, down_vec = find_3_sided_downvec( vec_list )
 
 	down_vec.normalize()
 

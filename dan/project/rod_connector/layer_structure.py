@@ -36,7 +36,7 @@ def create_from_layers_stick_list( layers, save_name ):
                 continue
 
             #To previous point above
-            if i+i < len(layers):
+            if i+1 < len(layers):
                 p_prev_above = layers[i+1][(j-1 if j>0 else len(layer)-1)]
                 if p_prev_above:
                     prev_above_vec = p_prev_above.copy()
