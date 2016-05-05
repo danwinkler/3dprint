@@ -128,6 +128,7 @@ def line_line_intersect_2d( ps1, pe1, ps2, pe2 ):
 
 
 def cyl_on_vec( v, r=1 ):
+	v = v.copy()
 	length = v.length()
 	v.normalize()
 	up_vec = Vec3( 0, 0, 1 )

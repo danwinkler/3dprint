@@ -227,8 +227,7 @@ def connector_redux( vec_list ):
 	orig_down = Vec3( .0000001, .0000001, -1 ).normalize()
 	axis = orig_down.cross( down_vec )
 	dot = orig_down.dot( down_vec )
-	print dot
-
+	
 	return build_connector( vec_list, offset ) #+ rot_on_vec( down_vec, cylinder(r=1, h=100) )
 
 def connector( vec_list, size_in_inches=half_in ):
