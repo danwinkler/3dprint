@@ -14,9 +14,12 @@ from solid.utils import *
 #Rotating part at top of fountain that, when spins, alternates blocking some of the holes for the water to spray out of
 # So that you get like an alternating patten of water spraying out of the top
 
+diameter = 7.85
+
 parts = []
 
-parts.append( cylinder( 10, 40 ) )
+
+parts.append( cylinder( 5, 20 ) - cylinder( diameter/2, 20 ) )
 
 print "Saving File"
 with open( __file__ + ".scad", "w" ) as f:
