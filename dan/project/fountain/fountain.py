@@ -19,7 +19,7 @@ diameter = 7.85
 parts = []
 
 
-parts.append( cylinder( 5, 20 ) - cylinder( diameter/2, 20 ) )
+parts.append( cylinder( 6, 10 ) - cylinder( 4, 10 ) )
 
 print "Saving File"
 with open( __file__ + ".scad", "w" ) as f:
