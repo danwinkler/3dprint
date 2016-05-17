@@ -14,6 +14,26 @@ import connector as conn
 
 stick_offset = 20 + 20
 
+def create_vase( layers, save_name ):
+    def pf( h, s ):
+        return layers[h][s].to_list()
+
+    print len(layers), len(layers[0])
+    part = make_trunk( len(layers), len(layers[0]), pf, True )
+    sub = scale([.9, .9, 1]) ( part )
+    #sub -= cylinder( r=1000, h=100 )
+    part -= sub
+
+    if save_name:
+        directory = "vase/"
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+
+        with open( directory + "/" + save_name + ".scad", "w" ) as f:
+            f.write( scad_render( part ) )
+
+    return part
+
 def create_from_layers_stick_list( layers, save_name ):
     sticks = []
     for i in range(len(layers)):
@@ -126,9 +146,7 @@ def create_from_layers( layers, save_name=None ):
             os.makedirs(directory)
 
         for i in range(len(connectors)):
-            print i
             with open( directory + "/" + str(i) + ".scad", "w" ) as f:
-                print len( connectors[i] )
                 c = conn.connector_redux( connectors[i] )
                 c -= up( 2 ) ( rotate( v=[0,1,0], a=180 ) ( linear_extrude( height=3 ) ( text( str(i), size=8, valign="center", halign="center" ) ) ) )
                 f.write( scad_render( c ) )

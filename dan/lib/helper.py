@@ -252,4 +252,4 @@ def make_trunk( height, sections, pf, index=False ):
 		triangles.append( [s2,max,s] )
 		triangles.append( [((height-1)*sections)+s,max+1,((height-1)*sections)+s2] )
 
-	return polyhedron( points=points, triangles=triangles )
+	return polyhedron( points=points, faces=triangles )
