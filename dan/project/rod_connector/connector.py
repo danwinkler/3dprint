@@ -192,44 +192,35 @@ def build_connector( vec_list, offset ):
 def connector_redux( vec_list ):
 	vec_list = vec_list = [v.copy().normalize() for v in vec_list]
 
+	#Try to find a flat spot make by the sides two vectors (Triangle is [origin, v1, v2])
 	found, down_vec = find_2_sided_downvec( vec_list )
 
+	#If that doesn't exist, find a flat spot make from the ends of 3 vectors (triangle is [v1, v2, v3])
 	if not found:
 		found, down_vec = find_3_sided_downvec( vec_list )
 
 	down_vec.normalize()
 
+	#This should never happen
 	if not found:
 		print "Couldn't find downvec"
 
+	#Rotate all vectors so that the flat spot we found is pointed straight down
 	vec_list = [rotate_to( v, down_vec ) for v in vec_list]
 
+	#Find the offset (some vectors will be z<0, so we need to make sure to shift up so that everything is flat with the build plate)
 	offset = 1000
 	for vec in vec_list:
 		if vec.z < offset:
 			offset = vec.z
 
+	#This is some crappy code that trys to account for the length/width of the connector
 	offset *= connector_length
 	offset -= rad + 3
 	offset *= -1
 
-	orig_down = Vec3( .0000001, .0000001, -1 ).normalize()
+	orig_down = Vec3( .0000001, .0000001, -1 ).normalize() #cross product gets all kind of fucked if both are on same axis plane
 	axis = orig_down.cross( down_vec )
 	dot = orig_down.dot( down_vec )
 
 	return build_connector( vec_list, offset ) #+ rot_on_vec( down_vec, cylinder(r=1, h=100) )
-
-'''
-parts.append( connector([
-	Vec3( 0, 0, 1 ),
-	Vec3( 1, 0, 1 ),
-	Vec3( 0, -1, 1 ),
-	Vec3( 0, 1, 0 ),
-	Vec3( 1, 0, 0 )
-] ) )
-'''
-
-if __name__ == "__main__":
-	print "Saving File"
-	with open( __file__ + ".scad", "w" ) as f:
-		f.write( scad_render( union()( parts ) ) )
