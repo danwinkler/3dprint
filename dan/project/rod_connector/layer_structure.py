@@ -14,14 +14,20 @@ import connector as conn
 
 stick_offset = 20 + 20
 
-def create_vase( layers, save_name ):
-    def pf( h, s ):
-        return layers[h][s].to_list()
+def create_vase( model, save_name, base_height=0 ):
+    layers_outer = model.get_layers()
+    layers_inner = model.get_layers( shrink_offset=25 )
 
-    print len(layers), len(layers[0])
-    part = make_trunk( len(layers), len(layers[0]), pf, True )
-    sub = scale([.9, .9, 1]) ( part )
-    #sub -= cylinder( r=1000, h=100 )
+    def outer_fun( h, s ):
+        return layers_outer[h][s].to_list()
+
+    def inner_fun( h, s ):
+        return layers_inner[h][s].to_list()
+
+    part = make_trunk( model.height, model.sections, outer_fun, True )
+    sub = make_trunk( model.height, model.sections, inner_fun, True )
+    if base_height > 0:
+        sub -= cylinder( r=1000, h=base_height )
     part -= sub
 
     if save_name:

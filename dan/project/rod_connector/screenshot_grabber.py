@@ -1,10 +1,11 @@
 import subprocess
 import math
 import platform
+import os
 
 system = platform.system()
 if system == "Windows":
-    pgm = "C:\Program Files (x86)\OpenSCAD\openscad.exe"
+    pgm = "C:\Program Files\OpenSCAD\openscad.exe"
 else:
     pgm = "/Applications/OpenSCAD.app/Contents/MacOS/OpenSCAD"
 
@@ -27,7 +28,15 @@ def output_stls():
         print i
         subprocess.call( [pgm, "-o", "stls/varE/" + str(i) + ".stl", "designs/varE/" + str(i) + ".scad"] )
 
+def build_vases():
+    files = os.listdir("vase/")
+    files = [f for f in files if f[-5:] == ".scad"]
+    for f in files:
+        print f
+        subprocess.call( [pgm, "-o", "vase/" + f.split(".")[0] + ".stl", "vase/" + f] )
+
 #get_connector_images()
 #get_structure_images()
 #rotate_scad_file()
-output_stls()
+#output_stls()
+build_vases()

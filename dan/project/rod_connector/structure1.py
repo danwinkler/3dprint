@@ -36,7 +36,7 @@ for h in range( layer_count ):
 
 parts = layer_structure.create_from_layers( layers, save_name="varE" )
 layer_structure.create_from_layers_stick_list( layers, save_name="varE" )
-layer_structure.create_vase( layers, save_name="varE" ) 
+layer_structure.create_vase( layers, save_name="varE" )
 
 print "Saving File"
 with open( __file__ + ".scad", "w" ) as f:

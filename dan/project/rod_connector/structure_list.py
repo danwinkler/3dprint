@@ -1,0 +1,82 @@
+from structure_class import *
+import math
+
+class S1(LayerStructure):
+    hscale = 300
+    height = 10
+    sections = 6
+    def calc(self, h, a):
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / self.sections) * a
+        angle = angle_minus_offset + offset * h
+        dist = (500 - h*30) + (150 if a % 2 == 0 else -100)
+        return angle, dist
+
+class S2(LayerStructure):
+    hscale = 300
+    height = 10
+    sections = 6
+    def calc(self, h, a):
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / self.sections) * a
+        angle = angle_minus_offset + offset * h
+        dist = (500 - h*30) + math.cos( angle_minus_offset * 2 ) * 150
+        return angle, dist
+
+class S3(LayerStructure):
+    hscale = 300
+    height = 10
+    sections = 6
+    def calc(self, h, a):
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / self.sections) * a
+        angle = angle_minus_offset + offset * h
+        dist = (500 - h*30) + math.cos( angle_minus_offset ) * 200
+        return angle, dist
+
+class S4(LayerStructure):
+    hscale = 300
+    height = 10
+    sections = 6
+    def calc(self, h, a):
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / self.sections) * a
+        angle = angle_minus_offset + offset * h
+        dist = (500 - h*30) - math.cos( angle_minus_offset * 2 ) * 150
+        return angle, dist
+
+class S5(LayerStructure):
+    hscale = 300
+    height = 10
+    sections = 6
+    def calc(self, h, a):
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / self.sections) * a
+        angle = angle_minus_offset + offset * h
+        height = float(h) / float(self.height)
+        height *= math.pi
+        dist = (500 - math.sin(height)*250 + h**3 * .6)
+        return angle, dist
+
+class S6(LayerStructure):
+    hscale = 300
+    height = 10
+    sections = 6
+    def calc(self, h, a):
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / self.sections) * a
+        angle = angle_minus_offset + offset * h
+        dist = (500 - h*30) + (100 if a % 3 == 0 else 0)
+        hscale = 300
+        return angle, dist
+
+class S7(LayerStructure):
+    hscale = 300
+    height = 10
+    sections = 6
+    def calc(self, h, a):
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / self.sections) * a
+        angle = angle_minus_offset + offset * h
+        dist = (500 - abs(h)*30)
+        return angle, dist
