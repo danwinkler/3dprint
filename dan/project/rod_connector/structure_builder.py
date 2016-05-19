@@ -1,5 +1,6 @@
 import structure_list
-from layer_structure import *
+import layer_structure
+from structure_class import *
 
 import sys
 
@@ -13,7 +14,14 @@ def model_filter(m):
         return False
 models = filter(model_filter, models)
 
+def create_vase( m, offset=0 ):
+    return m.get_object() - m.get_object( shrink_offset=100 )
+
 for model in models:
     print "Building: " + model.__name__
     m = model()
-    create_vase( m, model.__name__ )
+    if issubclass(model, LayerStructure):
+        layer_structure.create_vase( m, model.__name__ )
+    else:
+        with open( "vase/" + model.__name__ + ".scad", "w" ) as f:
+            f.write( scad_render( create_vase(m) ) )

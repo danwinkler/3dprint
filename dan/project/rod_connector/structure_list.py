@@ -80,3 +80,17 @@ class S7(LayerStructure):
         angle = angle_minus_offset + offset * h
         dist = (500 - abs(h)*30)
         return angle, dist
+
+class RandS1(RandomMeshStructure):
+    seed = 1
+    min_point_dist = 150
+    height = 3000
+    avg_rad = 500
+    def calc(self, x, y):
+        a = x * math.pi
+        h = y * 10
+        offset = math.pi * .125
+        angle_minus_offset = (math.pi*2 / 6) * a
+        angle = angle_minus_offset + offset * h
+        dist = (500 - h*40) + math.sin( y*20+x*20 ) * 50 + 50
+        return dist
