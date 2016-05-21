@@ -83,7 +83,7 @@ class S7(LayerStructure):
 
 class RandS1(RandomMeshStructure):
     seed = 1
-    min_point_dist = 150
+    min_point_dist = 250
     height = 3000
     avg_rad = 500
     def calc(self, x, y):

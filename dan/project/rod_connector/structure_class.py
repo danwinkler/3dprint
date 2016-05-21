@@ -1,6 +1,7 @@
 import sys
 import random
 import math
+import itertools
 
 from scipy.spatial import Delaunay
 
@@ -20,51 +21,6 @@ class LayerStructure:
                 layer.append( Vec3( math.cos( angle ) * dist, math.sin( angle ) * dist, h * 300 ) )
             layers.append( layer )
         return layers
-
-ASCII_FACET = """facet normal 0 0 0
-outer loop
-vertex {face[0][0]:.4f} {face[0][1]:.4f} {face[0][2]:.4f}
-vertex {face[1][0]:.4f} {face[1][1]:.4f} {face[1][2]:.4f}
-vertex {face[2][0]:.4f} {face[2][1]:.4f} {face[2][2]:.4f}
-endloop
-endfacet
-"""
-
-class ASCII_STL_Writer:
-    """ Export 3D objects build of 3 or 4 vertices as ASCII STL file.
-    """
-    def __init__(self, stream):
-        self.fp = stream
-        self._write_header()
-
-    def _write_header(self):
-        self.fp.write("solid python\n")
-
-    def close(self):
-        self.fp.write("endsolid python\n")
-
-    def _write(self, face):
-        self.fp.write(ASCII_FACET.format(face=face))
-
-    def _split(self, face):
-        p1, p2, p3, p4 = face
-        return (p1, p2, p3), (p3, p4, p1)
-
-    def add_face(self, face):
-        """ Add one face with 3 or 4 vertices. """
-        if len(face) == 4:
-            face1, face2 = self._split(face)
-            self._write(face1)
-            self._write(face2)
-        elif len(face) == 3:
-            self._write(face)
-        else:
-            raise ValueError('only 3 or 4 vertices for each face')
-
-    def add_faces(self, faces):
-        """ Add many faces. """
-        for face in faces:
-            self.add_face(face)
 
 class RandomMeshStructure:
     def torus_dist2(self, p1, p2, w, h):
@@ -87,6 +43,8 @@ class RandomMeshStructure:
             points.append( Vec3( edge_width*i, 0 ) )
             points.append( Vec3( edge_width*i, self.height ) )
 
+        edge_points = [i for i in range(len(points))]
+
         #Fill the area with points
         while(True):
             found = False
@@ -106,17 +64,98 @@ class RandomMeshStructure:
             if not found:
                 break
 
+        #Bin the points into veritcal columns
+        dsects_count = 4
+        dsects_inc = width / dsects_count
+        dsects = [[] for i in range(dsects_count)]
+        for p in points:
+            slot = int(p.x / dsects_inc)
+            dsects[slot].append( p )
+
+        #Create the Delaunay areas
+        dareas = []
+        ref_lists = [{} for i in range(dsects_count)]
+        for i in range(dsects_count):
+            if i-1 < 0:
+                bindex = i-1 + dsects_count
+                before = dsects[bindex]
+                before = [Vec3(p.x-width, p.y) for p in before]
+            else:
+                bindex = i-1
+                before = dsects[i-1]
+
+            if i+1 >= dsects_count:
+                aindex = i+1 - dsects_count
+                after = dsects[aindex]
+                after = [Vec3(p.x+width, p.y) for p in after]
+            else:
+                aindex = i+1
+                after = dsects[i+1]
+
+            for j in range(len(before)):
+                ref_lists[i][j] = (bindex, j, True)
+
+            for j in range(len(dsects[i])):
+                ref_lists[i][j+len(before)] = (i, j, False)
+
+            for j in range(len(after)):
+                ref_lists[i][j+len(dsects[i])+len(before)] = (aindex, j, True)
+
+            dareas.append( before + dsects[i] + after )
+
+        #Calculate Tris
+        tris = []
+        for i in range(dsects_count):
+            tris.append( Delaunay([p.to_list()[:2] for p in dareas[i]], qhull_options='QJ') )
+
+        def find_index( i, p ):
+            if p in ref_lists[i]:
+                l, li, fake = ref_lists[i][p]
+                point = dsects[l][li]
+
+            for cpi in range(len(points)):
+                if point is points[cpi]:
+                    return cpi, fake
+
+
+        #Make list of real tris
+        real_tris = []
+        for i in range(dsects_count):
+            for t in tris[i].simplices:
+                a, af = find_index( i, t[0] )
+                b, bf = find_index( i, t[1] )
+                c, cf = find_index( i, t[2] )
+                if af and bf and cf:
+                    continue
+                if a in edge_points and b in edge_points and c in edge_points:
+                    continue
+                real_tris.append( [c, b, a] )
+
+        #Remove duplicates
+        real_tris.sort()
+        real_tris = list(k for k,_ in itertools.groupby(real_tris))
+        real_tris = filter( lambda x: None not in x, real_tris )
+
         def realp(point):
             dist = self.calc(point.x/width, point.y/self.height)
-            a = -point.x/width * math.pi * 2
+            a = point.x/width * math.pi * 2
             return Vec3( math.cos( a ) * dist, math.sin( a ) * dist, point.y )
         real_points = [realp(p) for p in points]
 
-        tri = Delaunay([p.to_list()[:2] for p in points], qhull_options='Qt')
+        real_points.append( Vec3( 0, 0, 0 ) )
+        real_points.append( Vec3( 0, 0, self.height ) )
 
-        with open('vase/test.stl', 'wb') as fp:
-            writer = ASCII_STL_Writer(fp)
-            writer.add_faces( [ [real_points[t[0]], real_points[t[1]], real_points[t[2]]] for t in tri.simplices ] )
-            writer.close()
+        for i in range(edge_count):
+            real_tris.append([
+                len(real_points)-2,
+                i*2,
+                (i*2+2) % (edge_count*2)
+            ])
 
-        return polyhedron( points=[p.to_list() for p in real_points], faces=[[t[0], t[1], t[2]] for t in tri.simplices] )
+            real_tris.append([
+                (i*2+3) % (edge_count*2),
+                i*2+1,
+                len(real_points)-1
+            ])
+
+        return polyhedron( points=[p.to_list() for p in real_points], faces=real_tris )
