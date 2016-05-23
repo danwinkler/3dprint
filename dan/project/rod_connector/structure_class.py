@@ -137,7 +137,7 @@ class RandomMeshStructure:
         real_tris = filter( lambda x: None not in x, real_tris )
 
         def realp(point):
-            dist = self.calc(point.x/width, point.y/self.height)
+            dist = self.calc(point.x/width, point.y/self.height) - shrink_offset
             a = point.x/width * math.pi * 2
             return Vec3( math.cos( a ) * dist, math.sin( a ) * dist, point.y )
         real_points = [realp(p) for p in points]
