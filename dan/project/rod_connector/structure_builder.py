@@ -15,7 +15,7 @@ def model_filter(m):
 models = filter(model_filter, models)
 
 def create_vase( m, offset=0 ):
-    return m.get_object() - m.get_object( shrink_offset=30 )
+    return m.get_object()# - m.get_object( shrink_offset=30 )
 
 for model in models:
     print "Building: " + model.__name__

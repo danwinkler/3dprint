@@ -1,5 +1,6 @@
 from structure_class import *
 import math
+import random
 
 class S1(LayerStructure):
     hscale = 300
@@ -83,7 +84,7 @@ class S7(LayerStructure):
 
 class RandS1(RandomMeshStructure):
     seed = 1
-    min_point_dist = 150
+    min_point_dist = 1000
     height = 3000
     avg_rad = 500
     def calc(self, x, y):
@@ -94,3 +95,18 @@ class RandS1(RandomMeshStructure):
         angle = angle_minus_offset + offset * h
         dist = (500 - h*40) + math.sin( y*20+x*20 ) * 60 + 50
         return dist
+
+class WP1(WallPiece):
+    width = 1000
+    height = 1000
+
+    points = [Vec3(random.uniform(0, 1000), random.uniform(0, 1000), random.uniform(0, 100)) for i in range(100)]
+    points += [Vec3(0, i*100, 100) for i in range( 11 )]
+    points += [Vec3(i*100, 0, 100) for i in range( 11 )]
+    points += [Vec3(1000, i*100, 100) for i in range( 11 )]
+    points += [Vec3(i*100, 1000, 100) for i in range( 11 )]
+
+    sx_points = range(100, 111)
+    sy_points = range(111, 122)
+    bx_points = range(122, 133)
+    by_points = range(133, 144)

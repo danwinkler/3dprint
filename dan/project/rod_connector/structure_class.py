@@ -159,3 +159,32 @@ class RandomMeshStructure:
             ])
 
         return polyhedron( points=[p.to_list() for p in real_points], faces=real_tris )
+
+class WallPiece:
+    def get_object(self):
+        points = list(self.points) #Shallow Copy
+        tris = Delaunay( [p.to_list()[:2] for p in points], qhull_options='QJ' )
+        tris = [[t[0], t[1], t[2]] for t in tris.simplices]
+
+        for l in [self.sx_points, self.sy_points, self.bx_points, self.by_points]:
+            new_points = []
+            for p in l:
+                np = points[p].copy()
+                np.z = 0
+                new_points.append( np )
+
+            for i in range(len(new_points)-1):
+                tris.append( [l[i], len(points) + i, len(points) + i+1] )
+                tris.append( [l[i], len(points) + i+1, l[i+1]] )
+
+            points += new_points
+
+        points.append( Vec3(0, 0, 0) )
+        points.append( Vec3(self.width, 0, 0) )
+        points.append( Vec3(0, self.height, 0) )
+        points.append( Vec3(self.width, self.height, 0) )
+        le = len(points)
+        tris.append( [le-4, le-3, le-2] )
+        tris.append( [le-3, le-2, le-1] )
+
+        return polyhedron( points=[p.to_list() for p in points], faces=tris )
