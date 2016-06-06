@@ -29,19 +29,21 @@ followers = []
 points = []
 for i in range( 12 ):
     a = (i / 12.0) * math.pi * 2
-    points.append( Point( math.cos( a ), math.sin( a ), 0 ) )
+    points.append( Point( math.cos( a )*2, math.sin( a ), 0 ) )
 
 for i in range( 50 ):
     dist = 3
     f = Point( random.uniform( -dist, dist ), random.uniform( -dist, dist ), random.uniform( -dist, dist ) )
     followers.append( f )
 
-A = .3
-B = .1
-f_max = .05
-f_min = -.05
+A = .01
+B = -.1
+f_max = .5
+f_min = -.5
 def force_function( distance2 ):
-    f = -A * (distance2 ** 2) + B
+    if distance2 == 0:
+        return 0
+    f = (A * (1.0/(distance2 ** 2)) + B) * .01
     f = max( min( f, f_max ), f_min )
     return f
 
@@ -55,9 +57,9 @@ def friend_force( distance2 ):
 for i in range( 20 ):
     print i / 10.0, force_function( i / 10.0 )
 
-dt = .1
+dt = .5
 while( True ):
-    vi.rate( 60 )
+    vi.rate( 120 )
     for f in followers:
         force = Vec3()
         for p in points:
@@ -68,7 +70,6 @@ while( True ):
             v *= _force
             force += v
 
-
         for o in followers:
             if o is f:
                 continue
@@ -76,9 +77,9 @@ while( True ):
             mag = v.length()
             v /= mag #to normalize
             _force = force_function( mag )
+            if _force < 0: continue
             v *= _force
             force += v
-
 
         #if force.length2() > .1 ** 2:
         #    force.normalize()
