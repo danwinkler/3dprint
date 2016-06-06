@@ -103,7 +103,7 @@ class Vec3:
 		else:
 			raise Exception("Invalid index to Vec3")
 
-	def __str__( self ):
+	def __repr__( self ):
 		return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
 
 #http://www.wyrmtale.com/blog/2013/115/2d-line-intersection-in-c
