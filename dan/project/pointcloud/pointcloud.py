@@ -41,44 +41,35 @@ class Line:
         self.curve.append( pos=self.p1.to_list() )
 
     def distance( self, point ):
-        return self.pos.distance( point )
+        return point_to_line_segment( point, self.p0, self.p1 )
 
     def __repr__(self):
         return self.pos.__repr__()
 
-cloud = []
-points = []
-for i in range( 12 ):
-    a = (i / 12.0) * math.pi * 2
-    points.append( Point( math.cos( a ), math.sin( a ), 0 ) )
-
-A = .01
-B = -.1
-f_max = .5
-f_min = -.5
 def force_function( distance ):
     if distance == 0:
         return 0
     f = ((1.0/(distance ** 2)))
     return f
 
-def control_function( x, y, z ):
-    f = Vec3( x, y, z )
-    a = 0
-    for p in points:
-        v = f - p.pos
-        mag = v.length()
-        a += force_function( mag )
-    return a
+def get_points( objs, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, range=1, force_function=force_function ):
+    points = []
+    for x in np.arange( min_bound.x, max_bound.x, resolution ):
+        print x
+        for y in np.arange( min_bound.y, max_bound.y, resolution ):
+            for z in np.arange( min_bound.z, max_bound.z, resolution ):
+                p = Vec3( x, y, z )
+                v = 0
+                for o in objs:
+                    v += force_function( o.distance( p ) )
+                r_min = d - range*.5
+                r_max = d + range*.5
+                if v > r_min and v < r_max:
+                    points.append( Point( x, y, z ) )
+    return points
 
-for x in np.arange( -2, 2, .1 ):
-    for y in np.arange( -2, 2, .1 ):
-        for z in np.arange( -2, 2, .1 ):
-            v = abs( control_function( x, y, z ) )
-            if v > 15 and v < 16:
-                cloud.append( Point( x, y, z ) )
-
-vecs = [f.pos for f in cloud]
-string_out = "\n".join( [" ".join( [str(v) for v in f.to_list()] ) for f in vecs] )
-with open( "torus.xyz", "w" ) as f:
-    f.write( string_out )
+def write_points( points, filename ):
+    vecs = [f.pos for f in points]
+    string_out = "\n".join( [" ".join( [str(v) for v in f.to_list()] ) for f in vecs] )
+    with open( filename, "w" ) as f:
+        f.write( string_out )

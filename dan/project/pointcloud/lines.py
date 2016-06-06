@@ -8,26 +8,13 @@ import random
 
 import visual as vi
 
-lines = []
+from pointcloud import *
 
-lines.append( [Vec3(0, 0, 0), Vec3(0, 1, 0)])
-lines.append( [Vec3(0, 0, 0), Vec3(1, 0, 0)])
+objs = [
+    Line( Vec3(0, 0, 0), Vec3(0, 0, 1) ),
+    Line( Vec3(0, 0, 0), Vec3(1, 0, 0) ),
+    Line( Vec3(0, 0, 0), Vec3(0, 1, 0) ),
+]
 
-def draw_line( line ):
-    c = vi.curve()
-    c.append(pos=line[0].to_list())
-    c.append(pos=line[1].to_list())
-
-for line in lines:
-    draw_line( line )
-
-for i in range( 1000 ):
-    p = Vec3( random.uniform( -1, 2 ), random.uniform( -1, 2 ), random.uniform( -1, 2 ) )
-    good = False
-    for line in lines:
-        v = point_to_line_segment( p, line[0], line[1] )
-        if v > .3 and v < .5:
-            good = True
-
-    if good:
-        vi.sphere( pos=p.to_list(), radius=.05 )
+points = get_points( objs, min_bound=Vec3(-1, -1, -1 ), max_bound=Vec3( 1.5, 1.5, 1.5 ), resolution=.03 )
+write_points( points, "lines.xyz" )
