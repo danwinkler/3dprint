@@ -16,5 +16,4 @@ objs = [
     Line( Vec3(0, 0, 0), Vec3(0, 1, 0) ),
 ]
 
-points = get_points( objs, min_bound=Vec3(-1, -1, -1 ), max_bound=Vec3( 1.5, 1.5, 1.5 ), resolution=.03 )
-write_points( points, "lines.xyz" )
+make_points_file( objs, "lines.xyz", min_bound=Vec3(-1, -1, -1 ), max_bound=Vec3( 1.5, 1.5, 1.5 ), resolution=.03 )

@@ -11,7 +11,7 @@ import visual as vi
 from pointcloud import *
 
 hscale = 300
-height = 2
+height = 10
 sections = 6
 def calc( h, a ):
     offset = math.pi * .125
@@ -56,5 +56,4 @@ for i in range(len(layers)):
             lines.append( Line(p, p_prev_above) )
 
 
-points = get_points( lines, min_bound=Vec3(-700, -700, -100 ), max_bound=Vec3( 700, 700, 600 ), resolution=10, d=.001, r=.0003 )
-write_points( points, "structure.xyz" )
+points = make_points_file( lines, "structure.xyz", min_bound=Vec3(-700, -700, -100 ), max_bound=Vec3( 700, 700, 3000 ), resolution=5, d=.002, r=.0006 )

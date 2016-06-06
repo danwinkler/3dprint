@@ -6,6 +6,7 @@ from dan.lib.helper import *
 import math
 import random
 import itertools
+import subprocess
 
 import numpy as np
 
@@ -47,30 +48,48 @@ class Line:
     def __repr__(self):
         return self.pos.__repr__()
 
-def force_function( distance2 ):
-    if distance2 == 0:
-        return 0
-    f = ((1.0/(distance2)))
-    return f
+def get_points( lines, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, r=1 ):
+    lines = [[l.p0.to_list(), l.p1.to_list()] for l in lines]
+    lines = np.array( lines )
 
-def get_points( objs, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, r=1, force_function=force_function ):
     points = []
-    x_range = np.arange( min_bound.x, max_bound.x, resolution )
-    y_range = np.arange( min_bound.y, max_bound.y, resolution )
-    z_range = np.arange( min_bound.z, max_bound.z, resolution )
+    xr = np.arange( min_bound.x, max_bound.x, resolution )
+    yr = np.arange( min_bound.y, max_bound.y, resolution )
+    zr = np.arange( min_bound.z, max_bound.z, resolution )
+
+    def distance( A, B, P ):
+        """ segment line AB, point P, where each one is an array([x, y]) """
+        if np.arccos(np.dot((P - A) / np.linalg.norm(P - A), (B - A) / np.linalg.norm(B - A))) > np.pi / 2:
+            return np.linalg.norm(P - A)
+        if np.arccos(dot((P - B) / np.linalg.norm(P - B), (A - B) / np.linalg.norm(A - B))) > np.pi / 2:
+            return np.linalg.norm(P - B)
+        return abs(np.dot(A - B, P[::-1]) + np.linalg.det([A, B])) / np.linalg.norm(A - B)
+
+    #Create x, y, z array with force value
+    print distance( lines[0], lines[1], [xr, yr, zr] )
+    #loop over array and if force value is in range, add to point list
+
+
+    xv, yv, zv = np.meshgrid( x_range, y_range, z_range )
+
     i = 0
-    for x, y, z in itertools.product( x_range, y_range, z_range ):
+    def filter_func( x, y, z ):
         p = Vec3( x, y, z )
         v = 0
         for o in objs:
-            v += force_function( o.distance2( p ) )
+            v += 1.0 / o.distance2( p )
         r_min = d - r*.5
         r_max = d + r*.5
         if v > r_min and v < r_max:
-            points.append( Point( x, y, z ) )
-        i += 1
-        if i % 10000 == 0:
-            print x, y, z
+            return True
+        return False
+
+    f = np.vectorize( filter_func )
+    f = f( xv, yv, zv )
+
+    for x, y, z in itertools.product( xv, yv, zv ):
+        pass
+
     return points
 
 def write_points( points, filename ):
@@ -78,3 +97,10 @@ def write_points( points, filename ):
     string_out = "\n".join( [" ".join( [str(v) for v in f.to_list()] ) for f in vecs] )
     with open( filename, "w" ) as f:
         f.write( string_out )
+
+def make_points_file( lines, filename, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, r=1 ):
+    with open( "temp.txt", "w" ) as f:
+        first_line = " ".join( [str(a) for a in min_bound.to_list()] ) + " " + " ".join( [str(a) for a in max_bound.to_list()] ) + " " + str( resolution ) + " " + str( d ) + " " + str( r )
+        f.write( first_line + "\n" )
+        f.write( "\n".join( [" ".join([str(a) for a in l.p0.to_list()]) + " " + " ".join([str(a) for a in l.p1.to_list()]) for l in lines] ) )
+    subprocess.call( ["java", "PointCloud", "temp.txt", filename] )
