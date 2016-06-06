@@ -5,6 +5,7 @@ from dan.lib.helper import *
 
 import math
 import random
+import itertools
 
 import numpy as np
 
@@ -23,8 +24,8 @@ class Point:
     def render(self):
         self.sphere = vi.sphere(pos=self.pos.to_list(), radius=.1)
 
-    def distance( self, point ):
-        return self.pos.distance( point )
+    def distance2( self, point ):
+        return self.pos.distance2( point )
 
     def __repr__(self):
         return self.pos.__repr__()
@@ -40,32 +41,36 @@ class Line:
         self.curve.append( pos=self.p0.to_list() )
         self.curve.append( pos=self.p1.to_list() )
 
-    def distance( self, point ):
-        return point_to_line_segment( point, self.p0, self.p1 )
+    def distance2( self, point ):
+        return point_to_line_segment_2( point, self.p0, self.p1 )
 
     def __repr__(self):
         return self.pos.__repr__()
 
-def force_function( distance ):
-    if distance == 0:
+def force_function( distance2 ):
+    if distance2 == 0:
         return 0
-    f = ((1.0/(distance ** 2)))
+    f = ((1.0/(distance2)))
     return f
 
-def get_points( objs, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, range=1, force_function=force_function ):
+def get_points( objs, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, r=1, force_function=force_function ):
     points = []
-    for x in np.arange( min_bound.x, max_bound.x, resolution ):
-        print x
-        for y in np.arange( min_bound.y, max_bound.y, resolution ):
-            for z in np.arange( min_bound.z, max_bound.z, resolution ):
-                p = Vec3( x, y, z )
-                v = 0
-                for o in objs:
-                    v += force_function( o.distance( p ) )
-                r_min = d - range*.5
-                r_max = d + range*.5
-                if v > r_min and v < r_max:
-                    points.append( Point( x, y, z ) )
+    x_range = np.arange( min_bound.x, max_bound.x, resolution )
+    y_range = np.arange( min_bound.y, max_bound.y, resolution )
+    z_range = np.arange( min_bound.z, max_bound.z, resolution )
+    i = 0
+    for x, y, z in itertools.product( x_range, y_range, z_range ):
+        p = Vec3( x, y, z )
+        v = 0
+        for o in objs:
+            v += force_function( o.distance2( p ) )
+        r_min = d - r*.5
+        r_max = d + r*.5
+        if v > r_min and v < r_max:
+            points.append( Point( x, y, z ) )
+        i += 1
+        if i % 10000 == 0:
+            print x, y, z
     return points
 
 def write_points( points, filename ):
