@@ -98,9 +98,17 @@ def write_points( points, filename ):
     with open( filename, "w" ) as f:
         f.write( string_out )
 
-def make_points_file( lines, filename, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, r=1 ):
+INV_SQ = 0
+BLOBBY = 1
+METABALL = 2
+SOFT_OBJECT = 3
+
+def make_points_file( lines, filename, min_bound=Vec3(-1,-1,-1), max_bound=Vec3(1,1,1), resolution=.05, d=12, r=1, field_function=INV_SQ, function_opts=[] ):
     with open( "temp.txt", "w" ) as f:
-        first_line = " ".join( [str(a) for a in min_bound.to_list()] ) + " " + " ".join( [str(a) for a in max_bound.to_list()] ) + " " + str( resolution ) + " " + str( d ) + " " + str( r )
+        first_line = " ".join( [str(a) for a in min_bound.to_list()] ) + " "
+        first_line +=  " ".join( [str(a) for a in max_bound.to_list()] ) + " "
+        first_line += str( resolution ) + " " + str( d ) + " " + str( r ) + " " + str( field_function ) + " " + " ".join( [str(o) for o in function_opts] )
+
         f.write( first_line + "\n" )
         f.write( "\n".join( [" ".join([str(a) for a in l.p0.to_list()]) + " " + " ".join([str(a) for a in l.p1.to_list()]) for l in lines] ) )
     subprocess.call( ["java", "PointCloud", "temp.txt", filename] )
