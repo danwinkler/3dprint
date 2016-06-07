@@ -56,4 +56,4 @@ for i in range(len(layers)):
             lines.append( Line(p, p_prev_above) )
 
 
-points = make_points_file( lines, "structure.xyz", min_bound=Vec3(-700, -700, -100 ), max_bound=Vec3( 700, 700, 3000 ), resolution=5, d=.002, r=.0006 )
+points = make_points_file( lines, "structure.xyz", min_bound=Vec3(-700, -700, -100 ), max_bound=Vec3( 700, 700, 3000 ), resolution=10, d=.002, r=.0008 )
