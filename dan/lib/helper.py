@@ -104,7 +104,7 @@ class Vec3:
 			raise Exception("Invalid index to Vec3")
 
 	def __repr__( self ):
-		return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
+		return "(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
 
 #Find distance from point p to line segment
 def point_to_line_segment( p, l0, l1 ):

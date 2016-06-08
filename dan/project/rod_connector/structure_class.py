@@ -194,9 +194,14 @@ class WallPiece:
         sorted_points = filter( lambda x: x.z != 0, sorted_points )
         out = ""
         in_in_mm = 0.0393701
+        win = self.width * in_in_mm
+        hin = self.height * in_in_mm
         for i in xrange(len(sorted_points)):
-            p = sorted_points[i]
-            line = [i] + [e*in_in_mm for e in p.to_list()]
+            p = sorted_points[i].copy()
+            height_in_mm = p.z
+            p *= in_in_mm
+
+            line = [i] + [p.__repr__(), Vec3(win-p.x, hin-p.y, p.z).__repr__(), height_in_mm]
             line = [str(e) for e in line]
             out += " ".join( line ) + "\n"
         return out
