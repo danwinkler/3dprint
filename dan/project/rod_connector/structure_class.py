@@ -188,3 +188,15 @@ class WallPiece:
         tris.append( [le-3, le-2, le-1] )
 
         return polyhedron( points=[p.to_list() for p in points], faces=tris )
+
+    def get_list(self):
+        sorted_points = sorted( self.points, lambda a, b: cmp(a.y, b.y) )
+        sorted_points = filter( lambda x: x.z != 0, sorted_points )
+        out = ""
+        in_in_mm = 0.0393701
+        for i in xrange(len(sorted_points)):
+            p = sorted_points[i]
+            line = [i] + [e*in_in_mm for e in p.to_list()]
+            line = [str(e) for e in line]
+            out += " ".join( line ) + "\n"
+        return out

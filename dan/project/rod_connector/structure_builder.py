@@ -25,3 +25,6 @@ for model in models:
     else:
         with open( "vase/" + model.__name__ + ".scad", "w" ) as f:
             f.write( scad_render( create_vase(m) ) )
+        if hasattr( model, "get_list" ):
+            with open( "designs/" + model.__name__ +  "_list.txt", "w" ) as f:
+                f.write( m.get_list() )
