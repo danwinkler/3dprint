@@ -2,6 +2,7 @@ import sys
 import random
 import math
 import itertools
+from fractions import Fraction
 
 from scipy.spatial import Delaunay
 
@@ -201,7 +202,16 @@ class WallPiece:
             height_in_mm = p.z
             p *= in_in_mm
 
-            line = [i] + [p.__repr__(), Vec3(win-p.x, hin-p.y, p.z).__repr__(), height_in_mm]
+            def convert_to_fraction( v ):
+                main = int(v*16)/16
+                fraction = Fraction( int(v*16)/16.0 - main )
+                return str(main) + " " + str(fraction)
+
+            top_left = ", ".join( [convert_to_fraction(v) for v in p.to_list()[:-1]] )
+            bottom_right = Vec3(win-p.x, hin-p.y, p.z)
+            bottom_right = top_left = ", ".join( [convert_to_fraction(v) for v in bottom_right.to_list()[:-1]] )
+
+            line = [i] + [top_left, bottom_right, convert_to_fraction(p.z)]
             line = [str(e) for e in line]
-            out += " ".join( line ) + "\n"
+            out += " || ".join( line ) + "\n"
         return out
