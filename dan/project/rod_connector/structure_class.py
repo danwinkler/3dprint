@@ -209,8 +209,8 @@ class WallPiece:
 
             top_left = ", ".join( [convert_to_fraction(v) for v in p.to_list()[:-1]] )
             bottom_right = Vec3(win-p.x, hin-p.y, p.z)
-            bottom_right = top_left = ", ".join( [convert_to_fraction(v) for v in bottom_right.to_list()[:-1]] )
-
+            bottom_right = ", ".join( [convert_to_fraction(v) for v in bottom_right.to_list()[:-1]] )
+            
             line = [i] + [top_left, bottom_right, convert_to_fraction(p.z)]
             line = [str(e) for e in line]
             out += " || ".join( line ) + "\n"
