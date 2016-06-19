@@ -103,8 +103,42 @@ class Vec3:
 		else:
 			raise Exception("Invalid index to Vec3")
 
-	def __str__( self ):
-		return "(" + str(self.x) + "," + str(self.y) + "," + str(self.z) + ")"
+	def __repr__( self ):
+		return "(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
+
+#Find distance from point p to line segment
+def point_to_line_segment( p, l0, l1 ):
+	v = l1 - l0
+	w = p - l0
+
+	c1 = w.dot( v )
+	if c1 < 0:
+		return p.distance( l0 )
+
+	c2 = v.dot( v )
+	if c2 < c1:
+		return p.distance( l1 )
+
+	b = c1 / c2
+	pb = l0 + v * b
+	return p.distance( pb )
+
+#Find distance**2 from point p to line segment
+def point_to_line_segment_2( p, l0, l1 ):
+	v = l1 - l0
+	w = p - l0
+
+	c1 = w.dot( v )
+	if c1 < 0:
+		return p.distance2( l0 )
+
+	c2 = v.dot( v )
+	if c2 < c1:
+		return p.distance2( l1 )
+
+	b = c1 / c2
+	pb = l0 + v * b
+	return p.distance2( pb )
 
 #http://www.wyrmtale.com/blog/2013/115/2d-line-intersection-in-c
 def line_line_intersect_2d( ps1, pe1, ps2, pe2 ):

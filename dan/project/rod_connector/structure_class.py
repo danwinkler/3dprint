@@ -2,6 +2,7 @@ import sys
 import random
 import math
 import itertools
+from fractions import Fraction
 
 from scipy.spatial import Delaunay
 
@@ -230,3 +231,29 @@ class WallPiece:
 
         #return union() ( [translate( points[v].to_list() ) ( linear_extrude( 10 ) ( text( str(i), size=100, valign="center", halign="center" ) ) ) for i, v in enumerate( edges ) ])
         return polyhedron( points=[p.to_list() for p in points], faces=tris )
+
+    def get_list(self):
+        sorted_points = sorted( self.points, lambda a, b: cmp(a.y, b.y) )
+        sorted_points = filter( lambda x: x.z != 0, sorted_points )
+        out = ""
+        in_in_mm = 0.0393701
+        win = self.width * in_in_mm
+        hin = self.height * in_in_mm
+        for i in xrange(len(sorted_points)):
+            p = sorted_points[i].copy()
+            height_in_mm = p.z
+            p *= in_in_mm
+
+            def convert_to_fraction( v ):
+                main = int(v*16)/16
+                fraction = Fraction( int(v*16)/16.0 - main )
+                return str(main) + " " + str(fraction)
+
+            top_left = ", ".join( [convert_to_fraction(v) for v in p.to_list()[:-1]] )
+            bottom_right = Vec3(win-p.x, hin-p.y, p.z)
+            bottom_right = ", ".join( [convert_to_fraction(v) for v in bottom_right.to_list()[:-1]] )
+            
+            line = [i] + [top_left, bottom_right, convert_to_fraction(p.z)]
+            line = [str(e) for e in line]
+            out += " || ".join( line ) + "\n"
+        return out
