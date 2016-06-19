@@ -35,8 +35,8 @@ def build_vases():
         print f
         subprocess.call( [pgm, "-o", "vase/" + f.split(".")[0] + ".stl", "vase/" + f] )
 
-#get_connector_images()
+get_connector_images()
 #get_structure_images()
 #rotate_scad_file()
 #output_stls()
-build_vases()
+#build_vases()

@@ -163,28 +163,70 @@ class RandomMeshStructure:
 class WallPiece:
     def get_object(self):
         points = list(self.points) #Shallow Copy
-        tris = Delaunay( [p.to_list()[:2] for p in points], qhull_options='QJ' )
+        tris = Delaunay( [p.to_list()[:2] for p in points], qhull_options='Qt' )
         tris = [[t[0], t[1], t[2]] for t in tris.simplices]
+        tris = [list(reversed(l)) for l in tris]
 
-        for l in [self.sx_points, self.sy_points, self.bx_points, self.by_points]:
-            new_points = []
-            for p in l:
-                np = points[p].copy()
-                np.z = 0
-                new_points.append( np )
+        edge_count = {}
+        for tri in tris:
+            for i in range( 3 ):
+                a = tri[i]
+                b = tri[(i+1) % 3]
+                key = (a,b)
+                edge = edge_count.get( key )
+                if edge == None:
+                    key = (b, a)
+                    edge = edge_count.get( key )
 
-            for i in range(len(new_points)-1):
-                tris.append( [l[i], len(points) + i, len(points) + i+1] )
-                tris.append( [l[i], len(points) + i+1, l[i+1]] )
+                if edge == None:
+                    edge_count[key] = 1
+                else:
+                    edge_count[key] = edge_count[key] + 1
 
-            points += new_points
+        edges = []
+        for key, value in edge_count.iteritems():
+            if value == 1:
+                edges.append( key[0] )
+                edges.append( key[1] )
 
-        points.append( Vec3(0, 0, 0) )
-        points.append( Vec3(self.width, 0, 0) )
-        points.append( Vec3(0, self.height, 0) )
-        points.append( Vec3(self.width, self.height, 0) )
-        le = len(points)
-        tris.append( [le-4, le-3, le-2] )
-        tris.append( [le-3, le-2, le-1] )
+        edges = list(set(edges))
+        avg_point = reduce(lambda x, i: x + points[i], edges, Vec3())
+        avg_point /= len(edges)
+        avg_point.z = 0
 
+        def get_angle(a):
+            x = a.x - avg_point.x
+            y = a.y - avg_point.y
+            return atan2( y, x )
+
+        def sort_fun(a, b):
+            return 1 if get_angle( points[a] ) < get_angle( points[b] ) else -1
+
+        edges.sort( sort_fun )
+
+        new_points = []
+        for p in edges:
+            np = points[p].copy()
+            np.z = 0
+            new_points.append( np )
+
+        for i in range(len(new_points)):
+            t1 = [edges[i], len(points) + i, len(points) + ((i+1)%len(new_points))]
+            t2 = [edges[i], len(points) + ((i+1)%len(new_points)), edges[(i+1)%len(new_points)]]
+            tris.append( t1 )
+            tris.append( t2 )
+
+        points += new_points
+
+        points.append( avg_point )
+        for i in range( len( new_points ) ):
+            tris.append(
+                list(reversed([
+                    len(points)-1,
+                    len(points)-1 - len(new_points) + i,
+                    len(points)-1 - len(new_points) + ((i + 1)%len(new_points))
+                ]))
+            )
+
+        #return union() ( [translate( points[v].to_list() ) ( linear_extrude( 10 ) ( text( str(i), size=100, valign="center", halign="center" ) ) ) for i, v in enumerate( edges ) ])
         return polyhedron( points=[p.to_list() for p in points], faces=tris )

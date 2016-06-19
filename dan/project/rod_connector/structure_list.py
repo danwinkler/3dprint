@@ -97,16 +97,8 @@ class RandS1(RandomMeshStructure):
         return dist
 
 class WP1(WallPiece):
-    width = 1000
-    height = 1000
-
-    points = [Vec3(random.uniform(0, 1000), random.uniform(0, 1000), random.uniform(0, 100)) for i in range(100)]
-    points += [Vec3(0, i*100, 100) for i in range( 11 )]
-    points += [Vec3(i*100, 0, 100) for i in range( 11 )]
-    points += [Vec3(1000, i*100, 100) for i in range( 11 )]
-    points += [Vec3(i*100, 1000, 100) for i in range( 11 )]
-
-    sx_points = range(100, 111)
-    sy_points = range(111, 122)
-    bx_points = range(122, 133)
-    by_points = range(133, 144)
+    points = [Vec3(random.uniform(0, 1000), random.uniform(0, 1000), random.uniform(10, 100)) for i in range(100)]
+    points += [Vec3(0, i*100, 10) for i in range( 11 )]
+    points += [Vec3(i*100, 0, 10) for i in range( 11 )]
+    points += [Vec3(1000, i*100, 10) for i in range( 11 )]
+    points += [Vec3(i*100, 1000, 10) for i in range( 11 )]
