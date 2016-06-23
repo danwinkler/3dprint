@@ -9,6 +9,8 @@ import random
 from solid import *
 from solid.utils import *
 
+part_spacing = .1
+
 #Base
 part = cube( [24, 24, 3] )
 
@@ -23,12 +25,12 @@ part += translate( [4, 4, 3] ) (
         )
     ) - union() (
         #slots
-        translate( [3.8, 0, 3.5] ) ( cube( [4.4, 16, 25] ) ),
-        translate( [11.8, 0, 3.5] ) ( cube( [4.4, 16, 25] ) ),
+        translate( [4-part_spacing, 0, 3.5] ) ( cube( [4+part_spacing*2, 16, 25] ) ),
+        translate( [12-part_spacing, 0, 3.5] ) ( cube( [4+part_spacing*2, 16, 25] ) ),
         # hole
         translate( [0, 8, 12 ] ) (
             rotate( v=[0, 1, 0], a=90 ) (
-                cylinder( r=2.1, h=16, segments=32 )
+                cylinder( r=2.15, h=16, segments=32 )
             )
         )
     )
