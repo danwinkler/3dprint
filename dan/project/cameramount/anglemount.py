@@ -39,3 +39,9 @@ part += translate( [4, 4, 3] ) (
 print "Saving File"
 with open( __file__ + ".scad", "w" ) as f:
     f.write( scad_render( part ) )
+
+part += translate( [-24, 0, 0 ] ) ( cube( [24, 24, 3] ) - translate( [12, 12, 0 ] )( cylinder( r=6.9/2.0, h=3 ) ) )
+
+print "Saving File"
+with open( __file__ + "_withhole.scad", "w" ) as f:
+    f.write( scad_render( part ) )
