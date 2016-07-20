@@ -11,12 +11,11 @@ from solid.utils import *
 
 parts = []
 
-w1 = 10
-w2 = 22
-w3 = 20
+w2 = 21
+w3 = 19
 
-h1 = 10
-h2 = 20
+h0 = 5
+h2 = 21
 h3 = 54
 h4 = 80
 
@@ -26,7 +25,7 @@ stem_rad = 5
 hole_depth = 10
 hole_size = 3 + .5 #.5 so that the 3 rad connector can fit
 
-outline = polygon( points=[[w1,h1], [w2,h2], [w3,h3], [0,h4], [-w3, h3], [-w2, h2], [-w1, h1]] )
+outline = polygon( points=[[0, h0], [w2,h2], [w3,h3], [0,h4], [-w3, h3], [-w2, h2]] )
 
 parts.append(
     (translate( [0, thickness/2.0, 0] ) (
