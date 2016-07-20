@@ -23,7 +23,7 @@ thickness = 5
 stem_rad = 5
 
 hole_depth = 10
-hole_size = 3 + .5 #.5 so that the 3 rad connector can fit
+hole_size = 2.5 + .4 #.5 so that the 3 rad connector can fit
 
 outline = polygon( points=[[0, h0], [w2,h2], [w3,h3], [0,h4], [-w3, h3], [-w2, h2]] )
 
@@ -32,7 +32,7 @@ parts.append(
         rotate( v=[1,0,0], a=90 ) (
             linear_extrude(height=5)( outline )
         )
-    ) + cylinder( r1=stem_rad, r2=1, h=h4-2 ) ) - cylinder( r=3, h=hole_depth )
+    ) + cylinder( r1=stem_rad, r2=1, h=h4-2 ) ) - cylinder( r=hole_size, h=hole_depth, segments=36 )
 )
 
 print "Saving File"
