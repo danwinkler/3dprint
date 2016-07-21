@@ -15,13 +15,14 @@ stem_rad = 5
 
 hole_depth = 10
 hole_size = 2.5
+hole_offset = .2
 
 def branch( length, with_hole=False, with_nub=True ):
     o = cylinder( r=stem_rad, h=length )
     if with_nub:
         o += up( length ) ( cylinder( r=hole_size, h=8, segments=36 ) )
     if with_hole:
-        o -= hole() ( cylinder( r=hole_size, h=hole_depth, segments=36 ) )
+        o -= hole() ( cylinder( r=hole_size + hole_offset, h=hole_depth, segments=36 ) )
     return o
 
 

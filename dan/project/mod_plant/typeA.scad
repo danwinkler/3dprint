@@ -71,7 +71,7 @@ difference(){
 			union(){
 				union(){
 					difference(){
-						cylinder($fn = 36, h = 10, r = 2.5000000000);
+						cylinder($fn = 36, h = 10, r = 2.7000000000);
 					}
 				}
 			}
