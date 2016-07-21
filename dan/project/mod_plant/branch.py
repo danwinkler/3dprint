@@ -27,13 +27,13 @@ def branch( length, hole=False, nub=True ):
 
 
 def typeA():
-    o = branch( 150, hole=True )
+    o = branch( 80, hole=True )
 
     for i in range( 4 ):
-        o += up( i * 30 + 15 ) (
+        o += up( i * 20 + 5 ) (
             rotate( v=[0,0,1], a=(0 if (i%2)==0 else 180) ) (
                 rotate( v=[0,1,0], a=45 ) (
-                    branch( 40 )
+                    branch( 30 )
                 )
             )
         )
