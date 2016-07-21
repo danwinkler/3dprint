@@ -16,18 +16,18 @@ stem_rad = 5
 hole_depth = 10
 hole_size = 2.5
 
-def branch( length, hole=False, nub=True ):
+def branch( length, with_hole=False, with_nub=True ):
     o = cylinder( r=stem_rad, h=length )
-    if nub:
+    if with_nub:
         o += up( length ) ( cylinder( r=hole_size, h=8, segments=36 ) )
-    if hole:
-        o -= cylinder( r=hole_size, h=hole_depth, segments=36 )
+    if with_hole:
+        o -= hole() ( cylinder( r=hole_size, h=hole_depth, segments=36 ) )
     return o
 
 
 
 def typeA():
-    o = branch( 80, hole=True )
+    o = branch( 80, with_hole=True )
 
     for i in range( 4 ):
         o += up( i * 20 + 5 ) (
