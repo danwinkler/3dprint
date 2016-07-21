@@ -12,6 +12,6 @@ union() {
 			}
 			cylinder(h = 78, r1 = 5, r2 = 1);
 		}
-		cylinder($fn = 36, h = 10, r = 2.8000000000);
+		cylinder($fn = 36, h = 10, r = 2.7000000000);
 	}
 }

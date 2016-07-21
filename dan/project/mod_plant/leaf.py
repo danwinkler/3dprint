@@ -23,7 +23,7 @@ thickness = 5
 stem_rad = 5
 
 hole_depth = 10
-hole_size = 2.5 + .3 #extra so that the 2.5 rad connector can fit
+hole_size = 2.5 + .2 #extra so that the 2.5 rad connector can fit
 
 outline = polygon( points=[[0, h0], [w2,h2], [w3,h3], [0,h4], [-w3, h3], [-w2, h2]] )
 
