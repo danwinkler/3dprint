@@ -41,9 +41,30 @@ def typeA():
 
     return o
 
+def base():
+    o = branch( 30, 0 )
+    o += cylinder( r=40, h=5 )
+    text_width = 47
+    text_height = 7
+    neg = []
+    for x in range( -1, 2 ):
+        for y in range( -6, 7 ):
+            neg += [
+                translate( [x*text_width, y*text_height, -1] ) (
+                    scale( [-1,1,1] ) (
+                        linear_extrude( height=2 ) (
+                            text( "Daniel Winkler", size=5, valign="center", halign="center", font="Arial" )
+                        )
+                    )
+                )
+            ]
+    o -= neg
+    o += (cylinder( r=40, h=5 ) - cylinder( r=38, h=5 ))
+    return o
 
 branch_types = [
-    typeA
+    typeA,
+    base
 ]
 
 print "Saving File"
