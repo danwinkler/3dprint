@@ -249,7 +249,7 @@ def make_trunk( height, sections, pf, index=False ):
 			if index:
 				points.append( pf( h, s ) )
 			else:
-				points.append( pf( h/float(height), s/float(sections) ) )
+				points.append( pf( h/float(height-1), s/float(sections) ) )
 
 	for h in range(height-1):
 		h2 = h+1
