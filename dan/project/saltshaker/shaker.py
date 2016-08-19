@@ -44,9 +44,9 @@ def inner_fn( h, a ):
 outer = make_trunk( h_parts, r_parts, outer_fn )
 outer -= make_trunk( h_parts, r_parts, inner_fn ) - cylinder( r=1000, h=2 )
 
-#parts.append( outer )
+parts.append( outer )
 
-t_base_h = 7
+t_base_h = 8
 t_outer_r = 19.2 / 2
 t_inner_r = 13.9 / 2
 
@@ -68,7 +68,7 @@ vine_thread = vine( [Vec3(math.cos(r*math.pi*2) * t_outer_r, math.sin(r*math.pi*
 
 threads = up( height ) (
     (cylinder( r=t_outer_r, h=t_base_h ) - cylinder( r=t_inner_r, h=t_base_h )) +
-    up( 2 ) (
+    up( 3 ) (
         vine_thread
     )
 )
