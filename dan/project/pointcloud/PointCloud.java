@@ -67,7 +67,6 @@ public class PointCloud
 		float[] v = sub( l1, l0 );
 		float[] w = sub( p, l0 );
 
-
 		float c1 = dot( w, v );
 		if( c1 < 0 )
 			return distance( p, l0 );
@@ -149,14 +148,18 @@ public class PointCloud
 					float v = 0;
 					for( int i = 0; i < lines.length; i++ )
 					{
-						switch( fieldFunction )
+						v += inverseSquare( pointLineSegment2( pos, lines[i][0], lines[i][1] ) );
+
+						/*switch( fieldFunction )
 						{
-							case 0: v += inverseSquare( pointLineSegment2( pos, lines[i][0], lines[i][1] ) ); break;
+							case 0:
+
+							break;
 							case 1: v += blobby( pointLineSegment2( pos, lines[i][0], lines[i][1] ), extras[0], extras[1] ); break;
 							case 2: v += metaball( pointLineSegment( pos, lines[i][0], lines[i][1] ), extras[0], extras[1] ); break;
 							case 3: v += softObject( pointLineSegment2( pos, lines[i][0], lines[i][1] ), extras[0], extras[1] ); break;
 						}
-
+						*/
 					}
 
 					if( v > rMin && v < rMax )
