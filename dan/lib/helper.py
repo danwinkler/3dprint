@@ -219,7 +219,7 @@ def vine( points, wf, sections=8 ):
 
 		p = p.rotate( vec, angle )
 
-		width = wf( h, a )
+		width = wf( h, angle )
 
 		return [points[h].x + p.x * width, points[h].y + p.y * width, points[h].z + p.z * width]
 
