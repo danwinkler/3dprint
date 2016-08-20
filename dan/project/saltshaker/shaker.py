@@ -11,40 +11,41 @@ from solid.utils import *
 
 parts = []
 
-r_parts = 6
-h_parts = 5
+def body( r_parts=6, h_parts=5, height=50, bottom=17, top=12 ):
+    dif = bottom-top
+    def width_fn( r, h ):
+        return bottom - h*dif
 
-height = 50
+    def outer_fn( h, a ):
+        a *= math.pi*2
+        a += h * math.pi * 2
+        rad = width_fn( a, h )
+        x = math.cos( a ) * rad
+        y = math.sin( a ) * rad
+        z = h * height
 
-def width_fn( r, h ):
-    return 17 - h*5
+        return [x,y,z]
 
-def outer_fn( h, a ):
-    a *= math.pi*2
-    a += h * math.pi * 2
-    rad = width_fn( a, h )
-    x = math.cos( a ) * rad
-    y = math.sin( a ) * rad
-    z = h * height
+    def inner_fn( h, a ):
+        a *= math.pi*2
+        a += h * math.pi * 2
+        rad = width_fn( a, h ) - 5
+        if( h == 1 ):
+            rad -= 3
+        x = math.cos( a ) * rad
+        y = math.sin( a ) * rad
+        z = h * height
 
-    return [x,y,z]
+        return [x,y,z]
 
-def inner_fn( h, a ):
-    a *= math.pi*2
-    a += h * math.pi * 2
-    rad = width_fn( a, h ) - 2
-    if( h == 1 ):
-        rad -= 3
-    x = math.cos( a ) * rad
-    y = math.sin( a ) * rad
-    z = h * height
+    outer = make_trunk( h_parts, r_parts, outer_fn )
+    outer -= make_trunk( h_parts, r_parts, inner_fn ) - cylinder( r=1000, h=2 )
 
-    return [x,y,z]
+    return outer
 
-outer = make_trunk( h_parts, r_parts, outer_fn )
-outer -= make_trunk( h_parts, r_parts, inner_fn ) - cylinder( r=1000, h=2 )
-
-parts.append( outer )
+height = 70
+#parts.append( body() )
+parts.append( body( height=height, bottom=20, top=15 ) )
 
 t_base_h = 8
 t_outer_r = 19.2 / 2
