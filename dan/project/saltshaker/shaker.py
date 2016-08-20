@@ -11,7 +11,7 @@ from solid.utils import *
 
 parts = []
 
-def body( r_parts=6, h_parts=5, height=50, bottom=17, top=12 ):
+def body( r_parts=6, h_parts=5, height=50, bottom=17, top=12, wall_thickness=2, top_inner_offset=6 ):
     dif = bottom-top
     def width_fn( r, h ):
         return bottom - h*dif
@@ -29,9 +29,9 @@ def body( r_parts=6, h_parts=5, height=50, bottom=17, top=12 ):
     def inner_fn( h, a ):
         a *= math.pi*2
         a += h * math.pi * 2
-        rad = width_fn( a, h ) - 5
+        rad = width_fn( a, h ) - wall_thickness
         if( h == 1 ):
-            rad -= 3
+            rad -= top_inner_offset
         x = math.cos( a ) * rad
         y = math.sin( a ) * rad
         z = h * height
@@ -39,7 +39,7 @@ def body( r_parts=6, h_parts=5, height=50, bottom=17, top=12 ):
         return [x,y,z]
 
     outer = make_trunk( h_parts, r_parts, outer_fn )
-    outer -= make_trunk( h_parts, r_parts, inner_fn ) - cylinder( r=1000, h=2 )
+    outer -= make_trunk( h_parts, r_parts, inner_fn ) - cylinder( r=1000, h=wall_thickness )
 
     return outer
 
