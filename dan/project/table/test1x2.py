@@ -1,3 +1,15 @@
+'''
+Test 1:
+    Printed holes vertically. 19mmx38mm. Margins were .05, .1 and .15 on all side (so hole was x+margin*2,y+margin*2).
+    .05 was very snug. .1 was a good fit. .15 fit well, but slides easily along.
+    Because holes were printed vertically, there was some material that encroached on the hole which
+    made the smaller holes impossible to slide fully down the material (1x2 pine). The largest hole could fit fully
+    when force was applied.
+
+
+'''
+
+
 import sys
 sys.path.append( "../../../" )
 
