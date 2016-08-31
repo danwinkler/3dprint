@@ -35,9 +35,16 @@ inner_total_y = inner_y+offset*2
 cube_x = inner_total_x + wall_thickness*2
 cube_y = inner_total_y + wall_thickness*2
 
-hole_size_inner = 1.7
+hole_size_inner = 1.9
+hole_shaft_length = wall_thickness*3
 
-hole = down( wall_thickness ) ( cylinder( r=hole_size_inner, h=wall_thickness*2, segments=12 ) ) + up( wall_thickness-2 ) ( cylinder( r1=hole_size_inner, r2=3, h=2, segments=12 ) )
+hole = down( hole_shaft_length ) (
+    cylinder( r=hole_size_inner, h=hole_shaft_length+wall_thickness, segments=12 )
+) + up( wall_thickness-3 ) (
+    cylinder( r1=hole_size_inner, r2=4, h=3, segments=12 )
+) + up( wall_thickness ) (
+    cylinder( r=4, h=3, segments=12 )
+)
 
 
 def cbox( v ):
@@ -49,6 +56,7 @@ head = translate( [0, 0, z_offset] ) (
     rotate( a=45, v=[0,0,1] ) (
         rotate( a=angle_in_degrees, v=[0,1,0] ) (
             cbox( [cube_x, cube_y, height] ) - union() (
+                #FRONT AND BACK
                 translate( [inner_x*.5+offset, -inner_y*.25, height - 15] ) (
                     rotate( a=90, v=[0, 1, 0] ) (
                         hole
@@ -69,6 +77,7 @@ head = translate( [0, 0, z_offset] ) (
                         hole
                     )
                 ),
+                #SIDES
                 translate( [0, (inner_y*.5+offset), height - 15] ) (
                     rotate( a=-90, v=[1, 0, 0] ) (
                         hole
@@ -91,6 +100,22 @@ cutaway = translate( [0, 0, z_offset] ) (
                 cube( [inner_total_x, inner_total_y, height+1] )
             )
         )
+    )
+)
+
+
+#BOTTOM HOLES
+hole_offset = 3
+hole_spacing = 10
+cutaway += rotate( a=45, v=[0,0,1] ) (
+    translate( [hole_offset, 0, -1] ) (
+        cylinder( r=hole_size_inner, h=30, segments=12 )
+    ),
+    translate( [hole_offset, hole_spacing, -1] ) (
+        cylinder( r=hole_size_inner, h=30, segments=12 )
+    ),
+    translate( [hole_offset, -hole_spacing, -1] ) (
+        cylinder( r=hole_size_inner, h=30, segments=12 )
     )
 )
 

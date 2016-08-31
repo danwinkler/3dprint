@@ -16,11 +16,16 @@ union() {
 										translate(v = [9.6500000000, -9.5000000000, 25]) {
 											rotate(a = 90, v = [0, 1, 0]) {
 												union() {
-													translate(v = [0, 0, -4]) {
-														cylinder($fn = 12, h = 8, r = 1.7000000000);
+													union() {
+														translate(v = [0, 0, -12]) {
+															cylinder($fn = 12, h = 16, r = 1.9000000000);
+														}
+														translate(v = [0, 0, 1]) {
+															cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+														}
 													}
-													translate(v = [0, 0, 2]) {
-														cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+													translate(v = [0, 0, 4]) {
+														cylinder($fn = 12, h = 3, r = 4);
 													}
 												}
 											}
@@ -28,11 +33,16 @@ union() {
 										translate(v = [9.6500000000, 9.5000000000, 25]) {
 											rotate(a = 90, v = [0, 1, 0]) {
 												union() {
-													translate(v = [0, 0, -4]) {
-														cylinder($fn = 12, h = 8, r = 1.7000000000);
+													union() {
+														translate(v = [0, 0, -12]) {
+															cylinder($fn = 12, h = 16, r = 1.9000000000);
+														}
+														translate(v = [0, 0, 1]) {
+															cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+														}
 													}
-													translate(v = [0, 0, 2]) {
-														cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+													translate(v = [0, 0, 4]) {
+														cylinder($fn = 12, h = 3, r = 4);
 													}
 												}
 											}
@@ -40,11 +50,16 @@ union() {
 										translate(v = [-9.6500000000, -9.5000000000, 25]) {
 											rotate(a = -90, v = [0, 1, 0]) {
 												union() {
-													translate(v = [0, 0, -4]) {
-														cylinder($fn = 12, h = 8, r = 1.7000000000);
+													union() {
+														translate(v = [0, 0, -12]) {
+															cylinder($fn = 12, h = 16, r = 1.9000000000);
+														}
+														translate(v = [0, 0, 1]) {
+															cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+														}
 													}
-													translate(v = [0, 0, 2]) {
-														cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+													translate(v = [0, 0, 4]) {
+														cylinder($fn = 12, h = 3, r = 4);
 													}
 												}
 											}
@@ -52,11 +67,16 @@ union() {
 										translate(v = [-9.6500000000, 9.5000000000, 25]) {
 											rotate(a = -90, v = [0, 1, 0]) {
 												union() {
-													translate(v = [0, 0, -4]) {
-														cylinder($fn = 12, h = 8, r = 1.7000000000);
+													union() {
+														translate(v = [0, 0, -12]) {
+															cylinder($fn = 12, h = 16, r = 1.9000000000);
+														}
+														translate(v = [0, 0, 1]) {
+															cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+														}
 													}
-													translate(v = [0, 0, 2]) {
-														cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+													translate(v = [0, 0, 4]) {
+														cylinder($fn = 12, h = 3, r = 4);
 													}
 												}
 											}
@@ -64,11 +84,16 @@ union() {
 										translate(v = [0, 19.1500000000, 25]) {
 											rotate(a = -90, v = [1, 0, 0]) {
 												union() {
-													translate(v = [0, 0, -4]) {
-														cylinder($fn = 12, h = 8, r = 1.7000000000);
+													union() {
+														translate(v = [0, 0, -12]) {
+															cylinder($fn = 12, h = 16, r = 1.9000000000);
+														}
+														translate(v = [0, 0, 1]) {
+															cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+														}
 													}
-													translate(v = [0, 0, 2]) {
-														cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+													translate(v = [0, 0, 4]) {
+														cylinder($fn = 12, h = 3, r = 4);
 													}
 												}
 											}
@@ -76,11 +101,16 @@ union() {
 										translate(v = [0, -19.1500000000, 25]) {
 											rotate(a = 90, v = [1, 0, 0]) {
 												union() {
-													translate(v = [0, 0, -4]) {
-														cylinder($fn = 12, h = 8, r = 1.7000000000);
+													union() {
+														translate(v = [0, 0, -12]) {
+															cylinder($fn = 12, h = 16, r = 1.9000000000);
+														}
+														translate(v = [0, 0, 1]) {
+															cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+														}
 													}
-													translate(v = [0, 0, 2]) {
-														cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+													translate(v = [0, 0, 4]) {
+														cylinder($fn = 12, h = 3, r = 4);
 													}
 												}
 											}
@@ -141,53 +171,86 @@ union() {
 			}
 		}
 		union() {
-			translate(v = [0, 0, 10]) {
-				rotate(a = 45, v = [0, 0, 1]) {
-					rotate(a = 10, v = [0, 1, 0]) {
-						translate(v = [-9.6500000000, -19.1500000000, 0]) {
-							cube(size = [19.3000000000, 38.3000000000, 41]);
+			union() {
+				translate(v = [0, 0, 10]) {
+					rotate(a = 45, v = [0, 0, 1]) {
+						rotate(a = 10, v = [0, 1, 0]) {
+							translate(v = [-9.6500000000, -19.1500000000, 0]) {
+								cube(size = [19.3000000000, 38.3000000000, 41]);
+							}
 						}
+					}
+				}
+				rotate(a = 45, v = [0, 0, 1]) {
+					translate(v = [3, 0, -1]) {
+						cylinder($fn = 12, h = 30, r = 1.9000000000);
+					}
+					translate(v = [3, 10, -1]) {
+						cylinder($fn = 12, h = 30, r = 1.9000000000);
+					}
+					translate(v = [3, -10, -1]) {
+						cylinder($fn = 12, h = 30, r = 1.9000000000);
 					}
 				}
 			}
 			rotate(a = 45, v = [0, 0, 1]) {
 				translate(v = [33.0000000000, 0, 0]) {
 					union() {
-						translate(v = [0, 0, -4]) {
-							cylinder($fn = 12, h = 8, r = 1.7000000000);
+						union() {
+							translate(v = [0, 0, -12]) {
+								cylinder($fn = 12, h = 16, r = 1.9000000000);
+							}
+							translate(v = [0, 0, 1]) {
+								cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+							}
 						}
-						translate(v = [0, 0, 2]) {
-							cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+						translate(v = [0, 0, 4]) {
+							cylinder($fn = 12, h = 3, r = 4);
 						}
 					}
 				}
 				translate(v = [-33.0000000000, 0, 0]) {
 					union() {
-						translate(v = [0, 0, -4]) {
-							cylinder($fn = 12, h = 8, r = 1.7000000000);
+						union() {
+							translate(v = [0, 0, -12]) {
+								cylinder($fn = 12, h = 16, r = 1.9000000000);
+							}
+							translate(v = [0, 0, 1]) {
+								cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+							}
 						}
-						translate(v = [0, 0, 2]) {
-							cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+						translate(v = [0, 0, 4]) {
+							cylinder($fn = 12, h = 3, r = 4);
 						}
 					}
 				}
 				translate(v = [0, 33.0000000000, 0]) {
 					union() {
-						translate(v = [0, 0, -4]) {
-							cylinder($fn = 12, h = 8, r = 1.7000000000);
+						union() {
+							translate(v = [0, 0, -12]) {
+								cylinder($fn = 12, h = 16, r = 1.9000000000);
+							}
+							translate(v = [0, 0, 1]) {
+								cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+							}
 						}
-						translate(v = [0, 0, 2]) {
-							cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+						translate(v = [0, 0, 4]) {
+							cylinder($fn = 12, h = 3, r = 4);
 						}
 					}
 				}
 				translate(v = [0, -33.0000000000, 0]) {
 					union() {
-						translate(v = [0, 0, -4]) {
-							cylinder($fn = 12, h = 8, r = 1.7000000000);
+						union() {
+							translate(v = [0, 0, -12]) {
+								cylinder($fn = 12, h = 16, r = 1.9000000000);
+							}
+							translate(v = [0, 0, 1]) {
+								cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
+							}
 						}
-						translate(v = [0, 0, 2]) {
-							cylinder($fn = 12, h = 2, r1 = 1.7000000000, r2 = 3);
+						translate(v = [0, 0, 4]) {
+							cylinder($fn = 12, h = 3, r = 4);
 						}
 					}
 				}
