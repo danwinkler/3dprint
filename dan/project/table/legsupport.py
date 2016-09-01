@@ -32,7 +32,7 @@ size = half_in+.5
 rad = size/2
 
 hole_size_inner = 1.9
-hole_shaft_length = wall_thickness*8
+hole_shaft_length = wall_thickness*6
 
 screwhole = down( hole_shaft_length ) (
     cylinder( r=hole_size_inner, h=hole_shaft_length+wall_thickness, segments=12 )
@@ -73,7 +73,9 @@ angles_pieces = translate( [0, cube_y/2.0, 0] ) (
             cube( [angles_width, angles_length, height] ) -
             translate( [0, angles_length, 0] ) ( hole() (
                 translate( [angles_width/2.0, 1, height/2.0] ) ( rotate( a=90, v=[1,0,0] ) ( cylinder( r=rad, h=hole_depth+1 ) ) ) +
-                translate( [angles_width/2.0, -hole_depth/2.0, height-wall_thickness] ) ( screwhole )
+                translate( [angles_width/2.0, -hole_depth/2.0, wall_thickness] ) (
+                    rotate( v=[1,0,0], a=180 ) ( screwhole )
+                )
             ))
         )
     )
@@ -83,7 +85,9 @@ angles_pieces = translate( [0, cube_y/2.0, 0] ) (
             cube( [angles_width, angles_length, height] ) -
             hole() (
                 translate( [angles_width/2.0, -1, height/2.0] ) ( rotate( a=-90, v=[1,0,0] ) ( cylinder( r=rad, h=hole_depth+1 ) ) ) +
-                translate( [angles_width/2.0, hole_depth/2.0, height-wall_thickness] ) ( screwhole )
+                translate( [angles_width/2.0, hole_depth/2.0, wall_thickness] ) (
+                    rotate( v=[1,0,0], a=180 ) ( screwhole )
+                )
             )
         )
     )
