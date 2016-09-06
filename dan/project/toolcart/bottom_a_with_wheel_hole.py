@@ -35,11 +35,11 @@ parts.append(
 parts.append(
     hole() (
         translate( [wall_thickness, wall_thickness, wall_thickness] ) (
-            cube( [inner_x, length, 1000] ),
-            cube( [length, inner_x, 1000] ),
+            cube( [inner_x, length, 100] ),
+            cube( [length, inner_x, 100] ),
         ),
         translate( [wall_thickness, wall_thickness, outer_y + 10] ) (
-            cube( [100, 100, 100] )
+            cube( [50, 50, 50] )
         )
     )
 )
@@ -121,6 +121,10 @@ parts += [
         rotate( a=90, v=[0, 1, 0] ) (
             screwhole( "#8 Wood", wall_thickness+1 )
         )
+    ),
+    #Wheel hole
+    translate( [outer_x/2.0, length*.8, -1] ) (
+        hole() ( cylinder( r=3, h=wall_thickness+2, segments=12 ) )
     ),
 ]
 
