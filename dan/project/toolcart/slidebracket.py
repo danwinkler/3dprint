@@ -28,16 +28,14 @@ parts = []
 
 parts += [
     translate( [0,0,0] ) (
-        down( 50 ) (
-            cube( [outer_x, outer_y, 100] ),
-            hole() (
-                translate( [wall_thickness, -1, 0] ) (
-                    cube( [inner_x, inner_y+wall_thickness+1, 100] )
-                )
+        cube( [outer_x, outer_y, outer_x-wall_thickness] ),
+        hole() (
+            translate( [wall_thickness, -1, 0] ) (
+                cube( [inner_x, inner_y+wall_thickness+1, outer_x+1] )
             )
         ),
         hole() (
-            translate( [outer_x/2.0, outer_y, -20] ) (
+            translate( [outer_x/2.0, outer_y, outer_x*.5] ) (
                 rotate( a=-90, v=[1,0,0] ) (
                     screwhole( "#8 Wood", wall_thickness+1 )
                 )
@@ -66,7 +64,7 @@ parts += [
     )
 ]
 
-parts += [
+partsa = [
     hole() (
         translate( [-100, -100, -100] ) (
             cube( [200, 200, 100] )
