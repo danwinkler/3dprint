@@ -53,4 +53,9 @@ def save( filename, thing ):
 
 save( "rim2", rim( mm_in_inches*2, mm_in_inches*.75 + 1 ) )
 save( "rim1.5", rim( mm_in_inches*1.5, mm_in_inches*.75 + 1 ) )
+save( "rim1", rim( mm_in_inches*1, mm_in_inches*.75 + 1 ) )
+save( "rim.75", rim( mm_in_inches*.75, mm_in_inches*.75 + 1 ) )
+save( "rim1.125", rim( mm_in_inches*1.125, mm_in_inches*.75 + 1 ) )
+save( "rim.875", rim( mm_in_inches*.875, mm_in_inches*.75 + 1 ) )
 save( "cup2_3", cup( mm_in_inches*2, mm_in_inches*3 ) )
+save( "cup1.5_3", cup( mm_in_inches*1.5, mm_in_inches*3 ) )
