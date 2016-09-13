@@ -18,9 +18,11 @@ difference(){
 	/* Holes Below*/
 	scale(v = [-1, 1, 1]){
 		union(){
-			translate(v = [47, 0, 0]) {
+			translate(v = [41, 4, 0]) {
 				rotate(a = -36.8700000000, v = [0, 0, 1]) {
-					cube(size = [50, 50, 50]);
+					translate(v = [0, -10, 0]) {
+						cube(size = [50, 60, 50]);
+					}
 				}
 			}
 			translate(v = [0, 13.5000000000, 24.0000000000]) {

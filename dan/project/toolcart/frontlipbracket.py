@@ -22,7 +22,7 @@ outer_x = inner_x + wall_thickness*2
 outer_y = inner_y + wall_thickness*2
 
 wood_lip_extra = 6
-angle_offset = 20
+angle_offset = 20-2
 angle = -36.87
 
 parts = []
@@ -42,9 +42,11 @@ floor = up( wall_thickness ) (
 )
 
 cut = hole() (
-    translate( [outer_x+angle_offset, 0, 0] ) (
+    translate( [wall_thickness+inner_x+angle_offset, wall_thickness, 0] ) (
         rotate( a=angle, v=[0,0,1] ) (
-            cube( [50, 50, 50] )
+            translate( [0, -10, 0] ) (
+                cube( [50, 60, 50] )
+            )
         )
     )
 )
