@@ -3,9 +3,9 @@
 difference(){
 	union() {
 		translate(v = [0, 0, 0]) {
-			cube(size = [27.3000000000, 60, 23.3000000000]);
+			cube(size = [30.3000000000, 60, 23.3000000000]);
 		}
-		translate(v = [27.3000000000, 0, 0]) {
+		translate(v = [30.3000000000, 0, 0]) {
 			cube(size = [20, 60, 4]);
 		}
 	}
@@ -35,8 +35,8 @@ difference(){
 			rotate(a = -90, v = [0, 1, 0]) {
 				union() {
 					union() {
-						translate(v = [0, 0, -28.3000000000]) {
-							cylinder($fn = 12, h = 28.3000000000, r = 1.9000000000);
+						translate(v = [0, 0, -34.3000000000]) {
+							cylinder($fn = 12, h = 34.3000000000, r = 1.9000000000);
 						}
 						translate(v = [0, 0, -3]) {
 							cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
@@ -50,8 +50,8 @@ difference(){
 			rotate(a = -90, v = [0, 1, 0]) {
 				union() {
 					union() {
-						translate(v = [0, 0, -28.3000000000]) {
-							cylinder($fn = 12, h = 28.3000000000, r = 1.9000000000);
+						translate(v = [0, 0, -34.3000000000]) {
+							cylinder($fn = 12, h = 34.3000000000, r = 1.9000000000);
 						}
 						translate(v = [0, 0, -3]) {
 							cylinder($fn = 12, h = 3, r1 = 1.9000000000, r2 = 4);
@@ -61,7 +61,7 @@ difference(){
 				}
 			}
 		}
-		translate(v = [37.3000000000, 30.0000000000, 0]) {
+		translate(v = [40.3000000000, 30.0000000000, 0]) {
 			rotate(a = 180, v = [0, 1, 0]) {
 				union() {
 					union() {
