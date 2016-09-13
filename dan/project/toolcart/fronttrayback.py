@@ -17,7 +17,7 @@ inner_y = 38
 
 length = 45
 
-depth = 40
+depth = 30
 
 outer_x = inner_x + wall_thickness*2
 outer_y = inner_y + wall_thickness*2
