@@ -1,0 +1,14 @@
+
+
+union() {
+	difference() {
+		translate(v = [-107.9500000000, -139.7000000000, 0]) {
+			linear_extrude(height = 3) {
+				import(file = "pickguard2.dxf", origin = [0, 0]);
+			}
+		}
+		translate(v = [-1000, 0, -1]) {
+			cube(size = [2000, 1000, 5]);
+		}
+	}
+}

@@ -1,0 +1,33 @@
+import sys
+sys.path.append( "../../../" )
+
+from dan.lib.helper import *
+
+import math
+import random
+
+from solid import *
+from solid.utils import *
+
+mm_in_inch = 25.4
+
+plate = translate( [-8.5*.5*mm_in_inch, -11*.5*mm_in_inch, 0] ) (
+    linear_extrude( height=3 ) (
+        import_dxf( "pickguard2.dxf" )
+    )
+)
+
+
+parts = plate
+p1 = plate - translate( [-1000, 0, -1] ) ( cube( [2000, 1000, 5] ) )
+p2 = plate - translate( [-1000, -1000, -1] ) ( cube( [2000, 1000, 5] ) )
+
+print "Saving File"
+with open( __file__ + ".scad", "w" ) as f:
+    f.write( scad_render( union() ( parts ) ) )
+
+with open( __file__ + "_p1.scad", "w" ) as f:
+    f.write( scad_render( union() ( p1 ) ) )
+
+with open( __file__ + "_p2.scad", "w" ) as f:
+    f.write( scad_render( union() ( p2 ) ) )
