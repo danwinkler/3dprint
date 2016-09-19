@@ -11,9 +11,13 @@ from solid.utils import *
 
 mm_in_inch = 25.4
 
-plate = translate( [-8.5*.5*mm_in_inch, -11*.5*mm_in_inch, 0] ) (
-    linear_extrude( height=3 ) (
-        import_dxf( "pickguard2.dxf" )
+scale_ratio = 209.0/196.0
+
+plate = scale( [1, scale_ratio, 1] ) ( 
+    translate( [-8.5*.5*mm_in_inch, -11*.5*mm_in_inch, 0] ) (
+        linear_extrude( height=3 ) (
+            import_dxf( "pickguard2.dxf" )
+        )
     )
 )
 
