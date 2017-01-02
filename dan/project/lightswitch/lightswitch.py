@@ -15,24 +15,35 @@ z = 5
 
 parts = []
 
-solid_rim = translate( [5, 5, 0] ) (
+solid_rim = translate( [0, 0, 0] ) (
     minkowski() (
-        cube( [115 - 10, 70 - 10, .0001] ),
+        cube( [115, 70, .0001] ),
         sphere( r=5, segments=24 ) - translate( [-5,-5,-5] ) ( cube([10,10,5] ) )
     )
 )
 
 rim = solid_rim - (
-    translate( [5, 5, -1] ) (
-        cube( [x - 10, y - 10, 10] )
+    translate( [1, 1, -1] ) (
+        cube( [x-2, y-2, 10] )
     ) +
-    translate( [4, 4, 3] ) (
-        cube( [x - 8, y - 8, 10] )
+    translate( [-.2, -.2, 3] ) (
+        cube( [x+.4, y+.4, 10] )
     )
 )
 
-fx = x - 8 - .1
-fy = y - 8 - .1
+'''
+    +
+    translate( [5, 5, 0] ) (
+        minkowski() (
+            cube( [115 - 10, 70 - 10, .0001] ),
+            scale( [1, 1, .66] ) ( sphere( r=3, segments=24 ) ) - translate( [-5,-5,-5] ) ( cube([10,10,5] ) )
+        )
+    )
+)
+'''
+
+fx = x
+fy = y
 
 face = cube( [fx, fy, 2] ) + hole()(
     translate( [(fx-24.5)/2, (fy-10.4)/2, -1] ) (
