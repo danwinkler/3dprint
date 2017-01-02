@@ -34,22 +34,43 @@ rim = solid_rim - (
 fx = x - 8 - .1
 fy = y - 8 - .1
 
-face = cube( [fx, fy, 2] ) - (
+face = cube( [fx, fy, 2] ) + hole()(
     translate( [(fx-24.5)/2, (fy-10.4)/2, -1] ) (
-        cube( [24.5, 10.4, 10] )
+        cube( [24.5, 10.4, 1000] )
     ) +
     translate( [22.7,fy/2,-.001] ) (
-        cylinder( r1=4.6/2, r2=7.5/2, h=2.002, segments=16 )
+        cylinder( r1=4.6/2, r2=7.5/2, h=2.002, segments=16 ) +
+        up( 2 ) ( cylinder( r=7.5/2, h=1000 ) )
     )
     +
     translate( [fx-22.7,fy/2,-.001] ) (
+        up( 2 ) ( cylinder( r=7.5/2, h=1000 ) ) +
         cylinder( r1=4.6/2, r2=7.5/2, h=2.002, segments=16 )
     )
 )
 
-print "Saving File"
-with open( __file__ + "_rim.scad", "w" ) as f:
-    f.write( scad_render( union() ( rim ) ) )
+face += hole() (
+    translate( [-1000, -1000, -100] ) (
+        cube( [2000, 2000, 100] )
+    ) +
+    translate( [-1000, -1000, 0 ] ) (
+        cube( [1000, 2000, 2] )
+    ) +
+    translate( [fx, -1000, 0 ] ) (
+        cube( [1000, 2000, 2] )
+    ) +
+    translate( [0, fy, 0 ] ) (
+        cube( [1000, 1000, 2] )
+    ) +
+    translate( [0, -1000, 0] ) (
+        cube( [1000, 1000, 2] )
+    )
+)
 
-with open( __file__ + "_face.scad", "w" ) as f:
-    f.write( scad_render( union() ( face ) ) )
+if __name__ == '__main__':
+    print "Saving File"
+    with open( __file__ + "_rim.scad", "w" ) as f:
+        f.write( scad_render( union() ( rim ) ) )
+
+    with open( __file__ + "_face.scad", "w" ) as f:
+        f.write( scad_render( union() ( face ) ) )
