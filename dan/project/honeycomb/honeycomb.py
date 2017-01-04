@@ -11,24 +11,46 @@ from solid.utils import *
 
 from scipy.spatial import Voronoi
 
+import pyclipper
+
 points = []
-for y in range( 20 ):
-    for x in range( 10 ):
-        offset = 0 if y % 2 == 0 else .5
-        points.append( Vec3( x + offset, y ) )
+parts = []
 
-axis = Vec3( 0, 0, 1 )
-angle = math.pi * .2
+width = 20
+height = 20
 
-for y in range( 20 ):
-    for x in range( 10 ):
-        offset = 0 if y % 2 == 0 else .5
-        offset -= 5
-        p = Vec3( x + offset, y )
-        p = p.rotate( axis, angle )
-        points = filter( lambda tp: tp.distance2( p ) > (.5*.5), points )
-        points.append( p )
+min_dist = .8
+min_dist2 = min_dist*min_dist
 
+honeycomb_regions = 50
+
+print "Building initial point set"
+for i in range( honeycomb_regions ):
+    print str(i) + " out of " + str(honeycomb_regions)
+
+    tx = random.uniform( 0, 20 )
+    ty = random.uniform( 0, 20 )
+    axis = Vec3( 0, 0, 1 )
+    angle = math.pi * random.uniform( 0, 2 )
+
+    w = random.randint( 5, 20 )
+    h = random.randint( 5, 10 )
+
+    for y in range( h ):
+        for x in range( w ):
+            offset = 0 if y % 2 == 0 else .5
+            offset -= 5
+            p = Vec3( x + offset, y, 0 )
+            p = p.rotate( axis, angle )
+            p.x += tx
+            p.y += ty
+            points = filter( lambda tp: tp.distance2( p ) > min_dist2, points )
+            points.append( p )
+
+#Remove points too far out
+points = filter(lambda p: p.x > -5 and p.y > -5 and p.x < width+5 and p.y < height+5, points)
+
+#Caculating Voronoi
 vor = Voronoi( [p.to_list()[:2] for p in points] )
 
 #Remove incomplete regions
@@ -48,34 +70,29 @@ def area(corners):
 regions = filter(lambda region: area([vor.vertices[r] for r in region]) < 3, regions)
 
 #Assemble extruded sections
-parts = []
+print "Building openscad file"
 for region in regions:
     h = random.uniform(.5, 1.5)
     h=1
 
     verts = [vor.vertices[r] for r in region]
+    pco = pyclipper.PyclipperOffset()
+    pco.AddPath( pyclipper.scale_to_clipper( [[v[0], v[1]] for v in verts] ), pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON )
 
-    verts_vec = [Vec3(vert[0], vert[1]) for vert in verts]
-
-    avg_point = Vec3( sum([v.x for v in verts_vec]), sum([v.y for v in verts_vec]) )
-    avg_point /= len(verts_vec)
-
-    p2 = []
-
-    for v in verts_vec:
-        vec = Vec3( v.x, v.y )
-        vec -= avg_point
-        vec *= .8
-        vec += avg_point
-        p2.append( vec )
+    p2 = pyclipper.scale_from_clipper( pco.Execute( pyclipper.scale_to_clipper( -.1 ) ) )
+    cutout = union() ( [down( 1 ) ( linear_extrude( height=h+2 ) (
+        polygon( points=path )
+    )) for path in p2] )
 
     parts.append(
         linear_extrude( height=h ) (
             polygon( points=[[v[0], v[1]] for v in verts] )
-        ) - down( 1 ) ( linear_extrude( height=h+2 ) (
-            polygon( points=[v.to_list()[:2] for v in p2] )
-        ) )
+        ) - cutout
     )
+
+# Add Frame
+parts = union() ( parts ) - (translate( [-100, -100, -10] ) ( cube ( [200, 200, 20] ) ) - cube( [width, height, 1] ) )
+parts += cube( [width, height, 1] ) - translate( [1, 1, -1] ) ( cube( [width-2, height-2, 3] ) )
 
 print "Saving File"
 with open( __file__ + ".scad", "w" ) as f:
