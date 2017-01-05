@@ -13,8 +13,9 @@ from scipy.spatial import Voronoi
 
 import pyclipper
 
+random.seed( 0 )
+
 points = []
-parts = []
 
 width = 20
 height = 20
@@ -33,8 +34,8 @@ for i in range( honeycomb_regions ):
     axis = Vec3( 0, 0, 1 )
     angle = math.pi * random.uniform( 0, 2 )
 
-    w = random.randint( 5, 20 )
-    h = random.randint( 5, 10 )
+    w = random.randint( 15, 20 )
+    h = random.randint( 8, 10 )
 
     for y in range( h ):
         for x in range( w ):
@@ -71,10 +72,9 @@ regions = filter(lambda region: area([vor.vertices[r] for r in region]) < 3, reg
 
 #Assemble extruded sections
 print "Building openscad file"
-for region in regions:
-    h = random.uniform(.5, 1.5)
-    h=1
 
+holes = []
+for region in regions:
     verts = [vor.vertices[r] for r in region]
     pco = pyclipper.PyclipperOffset()
     pco.AddPath( pyclipper.scale_to_clipper( [[v[0], v[1]] for v in verts] ), pyclipper.JT_MITER, pyclipper.ET_CLOSEDPOLYGON )
@@ -84,14 +84,10 @@ for region in regions:
         polygon( points=path )
     )) for path in p2] )
 
-    parts.append(
-        linear_extrude( height=h ) (
-            polygon( points=[[v[0], v[1]] for v in verts] )
-        ) - cutout
-    )
+    holes.append( cutout )
 
 # Add Frame
-parts = union() ( parts ) - (translate( [-100, -100, -10] ) ( cube ( [200, 200, 20] ) ) - cube( [width, height, 1] ) )
+parts = cube( [width, height, 1] ) - union() ( holes )
 parts += cube( [width, height, 1] ) - translate( [1, 1, -1] ) ( cube( [width-2, height-2, 3] ) )
 
 print "Saving File"
