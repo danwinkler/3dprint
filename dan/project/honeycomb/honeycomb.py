@@ -17,8 +17,8 @@ random.seed( 0 )
 
 points = []
 
-width = 20
-height = 20
+width = 40
+height = 10
 
 min_dist = .8
 min_dist2 = min_dist*min_dist
@@ -29,8 +29,8 @@ print "Building initial point set"
 for i in range( honeycomb_regions ):
     print str(i) + " out of " + str(honeycomb_regions)
 
-    tx = random.uniform( 0, 20 )
-    ty = random.uniform( 0, 20 )
+    tx = random.uniform( 0, width )
+    ty = random.uniform( 0, height )
     axis = Vec3( 0, 0, 1 )
     angle = math.pi * random.uniform( 0, 2 )
 
@@ -87,7 +87,7 @@ for region in regions:
     holes.append( cutout )
 
 # Add Frame
-parts = cube( [width, height, 1] ) - union() ( holes )
+parts = cube( [width, height, 1] ) - holes
 parts += cube( [width, height, 1] ) - translate( [1, 1, -1] ) ( cube( [width-2, height-2, 3] ) )
 
 print "Saving File"
