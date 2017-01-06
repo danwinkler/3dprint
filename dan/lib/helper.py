@@ -161,7 +161,7 @@ def line_line_intersect_2d( ps1, pe1, ps2, pe2 ):
 	return Vec3( (B2*C1 - B1*C2)/delta, (A1*C2 - A2*C1)/delta )
 
 
-def cyl_on_vec( v, r=1 ):
+def cyl_on_vec( v, r=1, segments=6 ):
 	v = v.copy()
 	length = v.length()
 	v.normalize()
@@ -169,7 +169,7 @@ def cyl_on_vec( v, r=1 ):
 	cross = up_vec.cross( v )
 	angle = math.acos( up_vec.dot( v ) )
 	return rotate( a=math.degrees( angle ), v=cross.to_list() ) (
-		cylinder( h=length, r=r )
+		cylinder( h=length, r=r, segments=segments )
 	)
 
 def rot_on_vec( v, obj ):
