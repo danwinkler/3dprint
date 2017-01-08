@@ -51,19 +51,13 @@ def half_arch(base_h,w,r,thick):
         return math.sqrt(r**2-(r-x)**2)+base_h
 
     steps = 10
-    x_step = w / steps
     points = [ Vec3(0,0,0) ]
-
-    # Have dense steps for the first bit
-    points += [ Vec3( x, arc(r,x), 0 ) for x in np.linspace(0,x_step,steps/2) ]
-
-    # Then not as dense steps
-    points += [ Vec3( x, arc(r,x), 0 ) for x in np.linspace(2*x_step,w*1.1,steps) ]
+    points += [ Vec3( r+r*cos(t), r*sin(t)+base_h, 0 ) for t in np.linspace(math.pi,math.pi/2,steps) ]
 
     arch = vine( points, lambda h,a: thick, sections=16 )
 
     # SHAVE the top to make the two half arches join nicely
-    arch -= translate([w,0,-thick*2])( cube([thick*4,base_h+r,thick*4]) )
+    arch -= translate([w,0,-thick*2])( cube([r*2,base_h+2*r,thick*4]) )
 
     return arch
 
@@ -92,8 +86,22 @@ def face_base():
 def decoration():
     w = face_w / 2.5
     decor = translate([face_w/2,0,3])(
-        gothic_arch( 0.50*face_h,     w, face_w*1.5, 5 ) +
-        gothic_arch( 0.48*face_h, 0.8*w, face_w*1.5, 3 )
+        gothic_arch( 0.50*face_h,     w, w*2.9, 5 ) +
+        gothic_arch( 0.48*face_h, 0.8*w, w*2.8, 3 )
+    )
+
+    gt = gothic_triangle(10,0.5,1,20);
+    inner_r = 4.6
+    cutout_r = 4.6
+    for i in range(3):
+        a = i * math.pi*2 / 3
+        gt -= translate([inner_r*math.cos(a),inner_r*math.sin(a),-1])( cylinder(r=cutout_r,h=3,segments=25) )
+
+
+    decor += translate([0,0,10])(
+        rotate(360/6,[0,0,1])(
+            gt
+        )
     )
 
     # SHAVE back
@@ -103,22 +111,43 @@ def decoration():
 
     return decor
 
+def gothic_triangle(r,r_percent,thick,segments):
+    pts = []
+    trifold_angles = [ 0*math.pi*2/3, 1*math.pi*2/3, 2*math.pi*2/3 ]
+    trifold_vecs = [ Vec3(r*math.cos(a),r*math.sin(a),0) for a in trifold_angles ]
+    for i in range(3):
+        p = trifold_vecs[(0+i)%3] * r_percent
+        q1 = trifold_vecs[(1+i)%3] - p
+        a1 = math.atan2(q1.y,q1.x)
+        while a1 < 0:
+            a1 += math.pi*2
+        q2 = trifold_vecs[(2+i)%3] - p
+        a2 = math.atan2(q2.y,q2.x)
+        while a2 < 0 or a2 < a1:
+            a2 += math.pi*2
+        r = q1.length()
+        pts += [ [r*math.cos(a)+p.x,r*math.sin(a)+p.y] for a in np.linspace(a1,a2,segments) ]
 
-face = (face_base() + decoration()) - rim()
-
-# REMOVE the switch
-face -= translate( [(face_w-10.4)/2, (face_h-24.5)/2, -1] ) (
-    cube( [10.4, 24.5, 100] )
-)
-
-def screw_hole():
-    return translate( [face_w/2, 0, -.001] ) (
-        cylinder( r1=4.6/2, r2=7.5/2, h=2.002, segments=16 ) +
-        up( 2 ) ( cylinder( r=7.5/2, h=100 ) )
+    return linear_extrude( thick, True, 1, 0, 1, 1 )(
+        polygon( points=pts )
     )
 
-face -= translate( [0, +22.7, 0] ) ( screw_hole() )
-face -= translate( [0, face_h-22.7, 0] ) ( screw_hole() )
+face = (face_base() + decoration())
+# face = (face_base() + decoration()) - rim()
+
+# REMOVE the switch
+# face -= translate( [(face_w-10.4)/2, (face_h-24.5)/2, -1] ) (
+#     cube( [10.4, 24.5, 100] )
+# )
+
+# def screw_hole():
+#     return translate( [face_w/2, 0, -.001] ) (
+#         cylinder( r1=4.6/2, r2=7.5/2, h=2.002, segments=16 ) +
+#         up( 2 ) ( cylinder( r=7.5/2, h=100 ) )
+#     )
+
+# face -= translate( [0, +22.7, 0] ) ( screw_hole() )
+# face -= translate( [0, face_h-22.7, 0] ) ( screw_hole() )
 
 if __name__ == '__main__':
     print "Saving File"
