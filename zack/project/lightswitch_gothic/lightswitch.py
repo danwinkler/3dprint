@@ -103,6 +103,7 @@ def decoration():
             gt
         )
     )
+    
 
     # SHAVE back
     decor -= translate([0,0,-100]) (
