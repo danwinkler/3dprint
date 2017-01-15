@@ -86,24 +86,20 @@ def face_base():
 def decoration():
     w = face_w / 2.5
     decor = translate([face_w/2,0,3])(
-        gothic_arch( 0.50*face_h,     w, w*2.9, 5 ) +
-        gothic_arch( 0.48*face_h, 0.8*w, w*2.8, 3 )
+        gothic_arch( 0.50*face_h, 1.0*w, w*2.9, 3 ) +
+        gothic_arch( 0.49*face_h, 0.9*w, w*2.8, 2 )
     )
 
-    gt = gothic_triangle(10,0.5,1,20);
-    inner_r = 4.6
-    cutout_r = 4.6
-    for i in range(3):
-        a = i * math.pi*2 / 3
-        gt -= translate([inner_r*math.cos(a),inner_r*math.sin(a),-1])( cylinder(r=cutout_r,h=3,segments=25) )
-
-
-    decor += translate([0,0,10])(
-        rotate(360/6,[0,0,1])(
-            gt
-        )
-    )
-    
+    # off_y = 0.5*face_h
+    # decor += translate([1*face_w/3,off_y,4])(
+    #     gothic_arch( 0, 0.42*w, w*1.1, 1.5 )
+    # )
+    # decor += translate([2*face_w/3,off_y,4])(
+    #     gothic_arch( 0, 0.42*w, w*1.1, 1.5 )
+    # )
+    # decor += translate([face_w/2,off_y+17,4])(
+    #     gothic_arch( 0, 0.42*w, w*1.1, 1.5 )
+    # )
 
     # SHAVE back
     decor -= translate([0,0,-100]) (
@@ -133,22 +129,21 @@ def gothic_triangle(r,r_percent,thick,segments):
         polygon( points=pts )
     )
 
-face = (face_base() + decoration())
-# face = (face_base() + decoration()) - rim()
+face = (face_base() + decoration()) - rim()
 
 # REMOVE the switch
-# face -= translate( [(face_w-10.4)/2, (face_h-24.5)/2, -1] ) (
-#     cube( [10.4, 24.5, 100] )
-# )
+face -= translate( [(face_w-10.4)/2, (face_h-24.5)/2, -1] ) (
+    cube( [10.4, 24.5, 100] )
+)
 
-# def screw_hole():
-#     return translate( [face_w/2, 0, -.001] ) (
-#         cylinder( r1=4.6/2, r2=7.5/2, h=2.002, segments=16 ) +
-#         up( 2 ) ( cylinder( r=7.5/2, h=100 ) )
-#     )
+def screw_hole():
+    return translate( [face_w/2, 0, -.001] ) (
+        cylinder( r1=4.6/2, r2=7.5/2, h=2.002, segments=16 ) +
+        up( 2 ) ( cylinder( r=7.5/2, h=100 ) )
+    )
 
-# face -= translate( [0, +22.7, 0] ) ( screw_hole() )
-# face -= translate( [0, face_h-22.7, 0] ) ( screw_hole() )
+face -= translate( [0, +22.7, 0] ) ( screw_hole() )
+face -= translate( [0, face_h-22.7, 0] ) ( screw_hole() )
 
 if __name__ == '__main__':
     print "Saving File"
