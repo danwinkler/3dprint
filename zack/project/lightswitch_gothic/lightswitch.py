@@ -54,7 +54,7 @@ def half_arch(base_h,w,r,thick):
     points = [ Vec3(0,0,0) ]
     points += [ Vec3( r+r*cos(t), r*sin(t)+base_h, 0 ) for t in np.linspace(math.pi,math.pi/2,steps) ]
 
-    arch = vine( points, lambda h,a: thick, sections=16 )
+    arch = vine( points, lambda h,a: thick, sections=8 )
 
     # SHAVE the top to make the two half arches join nicely
     arch -= translate([w,0,-thick*2])( cube([r*2,base_h+2*r,thick*4]) )
@@ -62,19 +62,17 @@ def half_arch(base_h,w,r,thick):
     return arch
 
 def gothic_arch(base_h,w,r,thick):
-    def ha():
-        return half_arch(base_h,w,r,thick)
-
+    ha = half_arch(base_h,w,r,thick)
     return union()(
         translate([0,0,0])(
-            translate([-w,0,0])(
+            translate([-w, 0, 0])(
                 mirror([0,0,0])(
-                    ha()
+                    ha
                 )
             ),
             translate([w,0,0])(
                 mirror([1,0,0])(
-                    ha()
+                    ha
                 )
             ),
         ),
@@ -85,27 +83,31 @@ def face_base():
 
 def decoration():
     w = face_w / 2.5
+    '''
     decor = translate([face_w/2,0,3])(
         gothic_arch( 0.50*face_h, 1.0*w, w*2.9, 3 ) +
         gothic_arch( 0.49*face_h, 0.9*w, w*2.8, 2 )
     )
-
-    # off_y = 0.5*face_h
-    # decor += translate([1*face_w/3,off_y,4])(
-    #     gothic_arch( 0, 0.42*w, w*1.1, 1.5 )
-    # )
-    # decor += translate([2*face_w/3,off_y,4])(
-    #     gothic_arch( 0, 0.42*w, w*1.1, 1.5 )
-    # )
-    # decor += translate([face_w/2,off_y+17,4])(
-    #     gothic_arch( 0, 0.42*w, w*1.1, 1.5 )
-    # )
+    '''
+    decor = union()()
+    off_y = 0.5*face_h
+    mini_arch = gothic_arch( 0, 0.42*w, w*1.1, 1.5 )
+    decor += translate([1*face_w/3,off_y,2])(
+        mini_arch
+    )
+    decor += translate([2*face_w/3,off_y,2])(
+        mini_arch
+    )
+    decor += translate([face_w/2,off_y+17-10,2])(
+        mini_arch
+    )
 
     # SHAVE back
+    '''
     decor -= translate([0,0,-100]) (
         cube([face_w,face_h*2,100])
     )
-
+    '''
     return decor
 
 def gothic_triangle(r,r_percent,thick,segments):
@@ -144,6 +146,8 @@ def screw_hole():
 
 face -= translate( [0, +22.7, 0] ) ( screw_hole() )
 face -= translate( [0, face_h-22.7, 0] ) ( screw_hole() )
+
+face = decoration()
 
 if __name__ == '__main__':
     print "Saving File"
