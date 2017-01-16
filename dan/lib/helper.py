@@ -7,6 +7,16 @@ class Vec3:
 	def __init__( self, x=0, y=0, z=0 ):
 		self.set( x, y, z )
 
+	def set( self, x=0, y=0, z=0 ):
+		if x.__class__ == Vec3:
+			self.x = x.x
+			self.y = x.y
+			self.z = x.z
+		else:
+			self.x = float(x)
+			self.y = float(y)
+			self.z = float(z)
+
 	def length( self ):
 		return math.sqrt( self.length2() )
 
@@ -21,17 +31,6 @@ class Vec3:
 
 	def copy( self ):
 		return Vec3( self.x, self.y, self.z )
-
-	def set( self, x=0, y=0, z=0 ):
-		if x.__class__ == Vec3:
-			self.x = x.x
-			self.y = x.y
-			self.z = x.z
-		else:
-			self.x = float(x)
-			self.y = float(y)
-			self.z = float(z)
-
 
 	def distance2( self, other ):
 		x = self.x - other.x
@@ -199,15 +198,13 @@ def rot_on_vec( v, obj ):
 #      given the point index and the angle
 # sections - the number of points around the circle
 def vine( points, wf, sections=8 ):
-	global cross
+	global dan_helper_vine_cross
 
-	cross = points[0].copy()
-	cross.x += random.uniform( -.5, .5 )
-	cross.y += random.uniform( -.5, .5 )
-	cross.z += random.uniform( -.5, .5 )
+	dan_helper_vine_cross = None
 
 	def tf( h, a ):
-		global cross
+		global dan_helper_vine_cross
+
 		if h == 0:
 			vec = points[1] - points[0]
 		elif h == len(points)-1:
@@ -217,14 +214,20 @@ def vine( points, wf, sections=8 ):
 
 		vec.normalize()
 
+		if dan_helper_vine_cross == None:
+			if vec.z == 1:
+				dan_helper_vine_cross = Vec3( 1, 0, 0 )
+			else:
+				dan_helper_vine_cross = Vec3( 0, 0, 1 )
+
 		angle = (a/float(sections)) * math.pi * 2
 
-		p = vec.cross( cross )
+		p = vec.cross( dan_helper_vine_cross )
 
 		p = p.cross( vec )
 
-		cross = p
-		cross.normalize()
+		dan_helper_vine_cross = p
+		dan_helper_vine_cross.normalize()
 
 		p = p.rotate( vec, angle )
 

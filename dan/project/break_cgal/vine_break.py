@@ -19,7 +19,7 @@ v = vine(points, lambda h,a: 1, sections=12 )
 
 def half():
     return translate( [-2, 0, 0] ) (
-        v
+        vine(points, lambda h,a: 1, sections=12 )
     ) - translate( [-5, 0, -5] ) ( cube( [5, 20, 10] ) )
 
 
