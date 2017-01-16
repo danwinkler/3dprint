@@ -5,9 +5,7 @@ import random
 
 class Vec3:
 	def __init__( self, x=0, y=0, z=0 ):
-		self.x = float(x)
-		self.y = float(y)
-		self.z = float(z)
+		self.set( x, y, z )
 
 	def length( self ):
 		return math.sqrt( self.length2() )
@@ -23,6 +21,17 @@ class Vec3:
 
 	def copy( self ):
 		return Vec3( self.x, self.y, self.z )
+
+	def set( self, x=0, y=0, z=0 ):
+		if x.__class__ == Vec3:
+			self.x = x.x
+			self.y = x.y
+			self.z = x.z
+		else:
+			self.x = float(x)
+			self.y = float(y)
+			self.z = float(z)
+
 
 	def distance2( self, other ):
 		x = self.x - other.x
