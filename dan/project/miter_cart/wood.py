@@ -58,7 +58,21 @@ def cube_rot( order ):
 def wood_bom():
     table = prettytable.PrettyTable( field_names=wood_bom_columns )
 
+    types = {}
+
     for k, v in wood_bom_table.items():
+        if 'type' in v:
+            if v['type'] not in types:
+                types[v['type']] = { 'length': 0, 'width': 0, 'type': v['type'] }
+            print( types[v['type']], v.get( 'width', 0 ) )
+            types[v['type']]['length'] += v['length'] or 0
+            types[v['type']]['width'] += v['width'] or 0
         table.add_row( [v[n] for n in wood_bom_columns] )
 
-    return table.get_string()
+    quantity_cols = ['type', 'length', 'width']
+    quantity_table = prettytable.PrettyTable( field_names=quantity_cols )
+
+    for k, v in types.items():
+        quantity_table.add_row( [v[n] for n in quantity_cols] )
+
+    return table.get_string() + "\n" + quantity_table.get_string()

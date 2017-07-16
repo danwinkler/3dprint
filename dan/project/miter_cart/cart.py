@@ -15,14 +15,16 @@ mm_to_in = 25.4
 
 #Cart variables
 platform_width = 26
-cart_width = platform_width + (5.5-1.5) * 2
+cart_width = platform_width + 1.5*2
 cart_depth = 24
 cart_height = 36
 shelf_height_above_ground = 4
 wing_height = 5
 wing_width = 24
+wing_tongue_length = 18
+wing_tongue_thickness = .75
 
-wing_lifted = True
+wing_lifted = False
 
 parts = []
 
@@ -73,82 +75,58 @@ def leg():
         )
     ]
 
-def pins( depth=3.5 ):
-    num_holes = 4
-    hole_margin = 3.5
-    holes_depth = cart_depth - (hole_margin*2)
-    holes_sep = holes_depth / (num_holes-1)
-    return [
-        translate( [1.5 * .5 - (1.5 if n == 1 or n == 2 else 0), hole_margin + n * holes_sep, 0] ) (
-            cylinder( r=.4, h=depth, segments=8 )
-        )
-        for n in range( num_holes )
-    ]
-
 def rim():
-    def side():
-        return union()(translate( [0, 1.5, 0 ] ) (
+    wing_slot_thickness = wing_tongue_thickness
+    return [
+        translate( [-wing_slot_thickness, 0, 0] ) (
+            wood_2x4( cart_width + wing_slot_thickness*2 )
+        ),
+        translate( [-wing_slot_thickness, cart_depth-1.5, 0] ) (
+            wood_2x4( cart_width + wing_slot_thickness*2 )
+        ),
+        #Left
+        translate( [-wing_slot_thickness, 1.5, 0 ] ) (
             cube_rot( [0, 2, 1] ) (
                 wood_2x4( cart_depth - 1.5*2 )
             )
-        ) + translate( [1.5, 1.5 + 1.5 + 3.5, 0 ] ) (
-            cube_rot( [0, 2, 1] ) (
-                wood_2x4( cart_depth - 1.5*4 - 3.5*2 )
-            )
-        ) + translate( [3, 1.5 + 1.5, 0 ] ) (
-            cube_rot( [0, 2, 1] ) (
-                wood_2x4( cart_depth - 1.5*4 )
-            )
-        )) - translate( [1.5, 0, -.1] ) (
-            scale( [-1, 1, 1] ) (
-                pins( 3.7 )
-            )
-        )
-
-    return [
-        wood_2x4( cart_width ),
-        translate( [0, cart_depth-1.5, 0] ) (
-            wood_2x4( cart_width )
         ),
-        #Left
-        side(),
         #Right
-        translate( [cart_width, 0, 0] ) (
-            scale( [-1, 1, 1] ) (
-                side()
+        translate( [cart_width + wing_slot_thickness - 1.5, 1.5, 0] ) (
+            cube_rot( [0, 2, 1] ) (
+                wood_2x4( cart_depth - 1.5*2 )
             )
         )
     ]
 
 def wing( angle=0 ):
     wing_rim_wood_thickness = .75
+    wing_lower_height = 0
     return [
         #Attachment
-        translate( [0, 0, -3.5 - .5] ) (
-            pins( 3.5+1.5 )
-        ),
-        translate( [-5.5 + 3, 0, -.5] ) (
-            cube_rot( [1, 2, 0] ) (
-                wood_2x6( cart_depth )
+        translate( [0, 1.5, -wing_tongue_length + 3.5 - .5] ) (
+            cube_rot( [0, 2, 1] ) (
+                plywood( cart_depth - 1.5*2, wing_tongue_length, wing_tongue_thickness )
             )
         ),
-        translate( [1.5, 0, -3.5 - .5] ) (
+        translate( [wing_tongue_thickness, 0, -.5] ) (
             cube_rot( [0, 2, 1] ) (
                 wood_2x4( cart_depth )
-            ) - translate( [-1.5, 0, 0] ) ( pins( 3.5+1.5 ) )
+            )
         ),
         #Moving part
-        translate( [3, 0, 0] ) (
+        translate( [1.5 + wing_tongue_thickness, 0, 0] ) (
             rotate( v=[0,1,0], a=angle ) (
-                wood( [wing_width, wing_rim_wood_thickness, wing_height] ),
-                translate( [0, cart_depth-wing_rim_wood_thickness, 0] ) (
-                    wood( [wing_width, wing_rim_wood_thickness, wing_height] )
+                translate( [0, 0, -wing_lower_height] ) (
+                    wood( [wing_width, wing_rim_wood_thickness, wing_height+wing_lower_height] )
                 ),
-                translate( [0, wing_rim_wood_thickness, 0] ) (
-                    wood( [wing_rim_wood_thickness, cart_depth-wing_rim_wood_thickness*2, wing_height] )
+                translate( [0, cart_depth-wing_rim_wood_thickness, -wing_lower_height] ) (
+                    wood( [wing_width, wing_rim_wood_thickness, wing_height+wing_lower_height] )
                 ),
-                translate( [wing_width-wing_rim_wood_thickness, wing_rim_wood_thickness, 0] ) (
-                    wood( [wing_rim_wood_thickness, cart_depth-wing_rim_wood_thickness*2, wing_height] )
+                translate( [0, wing_rim_wood_thickness, -wing_lower_height] ) (
+                    wood( [wing_rim_wood_thickness, cart_depth-wing_rim_wood_thickness*2, wing_height+wing_lower_height] )
+                ),
+                translate( [wing_width-wing_rim_wood_thickness, wing_rim_wood_thickness, -wing_lower_height] ) (
+                    wood( [wing_rim_wood_thickness, cart_depth-wing_rim_wood_thickness*2, wing_height+wing_lower_height] )
                 ),
                 translate( [0, 0, wing_height] ) (
                     plywood( wing_width, cart_depth )
@@ -191,8 +169,21 @@ parts += [
 ]
 
 parts += [
-    translate( [5.5-1.5, 0, cart_height-.5] ) (
+    translate( [(cart_width-platform_width) * .5, 0, cart_height-.5] ) (
         plywood( platform_width, cart_depth )
+    )
+]
+
+parts += [
+    translate( [0, 1.5, cart_height - wing_tongue_length - 1.5 + 1] ) (
+        cube_rot( [0, 2, 1] ) (
+            wood_2x4( cart_depth-3 )
+        )
+    ),
+    translate( [cart_width - 1.5, 1.5, cart_height - wing_tongue_length - 1.5 + 1] ) (
+        cube_rot( [0, 2, 1] ) (
+            wood_2x4( cart_depth-3 )
+        )
     )
 ]
 
@@ -209,7 +200,7 @@ wings = [
 ]
 
 if wing_lifted:
-    wings = up( 6 ) (
+    wings = up( wing_tongue_length + 3 ) (
         wings
     )
 
