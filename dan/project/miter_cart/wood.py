@@ -3,6 +3,9 @@ from solid.utils import *
 
 import prettytable
 
+import binpacking
+import rectpack
+
 wood_bom_columns = [
     'name',
     'count',
@@ -42,7 +45,8 @@ def wood_2x4( length ):
     return cube( [length, 1.5, 3.5] )
 
 def plywood( width, length, thickness=.5 ):
-    wood_bom_update( 'plywood ' + str(width) + 'x' + str(length), type="plywood", width=width, length=length, thickness=thickness )
+    t = 'plywood ' + str(width) + 'x' + str(length) + 'x' + str(thickness)
+    wood_bom_update( t, type="plywood-" + str(thickness), width=width, length=length, thickness=thickness )
     return cube( [width, length, thickness] )
 
 def cube_rot( order ):
@@ -55,6 +59,38 @@ def cube_rot( order ):
 
     return call_fn
 
+def wood_pack_1d( type, *args, **kwargs ):
+    values = []
+
+    key = list(kwargs.keys())[0]
+
+    for k, v in wood_bom_table.items():
+        if( v['type'] == type ):
+            values += [v[key]] * v['count']
+
+    return binpacking.to_constant_volume( values, kwargs[key] )
+
+def wood_pack_2d( type, *args, **kwargs ):
+    rects = []
+
+    a = list(kwargs.keys())[0]
+    b = list(kwargs.keys())[1]
+
+    for k, v in wood_bom_table.items():
+        if( v['type'] == type ):
+            rects += [(rectpack.float2dec(v[a],3), rectpack.float2dec(v[b],3))] * v['count']
+
+    packer = rectpack.newPacker()
+
+    for r in rects:
+        packer.add_rect( *r )
+
+    packer.add_bin( kwargs[a], kwargs[b], count=float("inf") )
+
+    packer.pack()
+
+    return packer
+
 def wood_bom():
     table = prettytable.PrettyTable( field_names=wood_bom_columns )
 
@@ -64,7 +100,6 @@ def wood_bom():
         if 'type' in v:
             if v['type'] not in types:
                 types[v['type']] = { 'length': 0, 'width': 0, 'type': v['type'] }
-            print( types[v['type']], v.get( 'width', 0 ) )
             types[v['type']]['length'] += v['length'] or 0
             types[v['type']]['width'] += v['width'] or 0
         table.add_row( [v[n] for n in wood_bom_columns] )

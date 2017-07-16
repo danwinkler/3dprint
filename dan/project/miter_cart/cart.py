@@ -209,6 +209,27 @@ parts += [wings]
 
 print( wood_bom() )
 
+for i in range( 10 ):
+    plywood( 10, 20 )
+
+pack2x4 = wood_pack_1d( '2x4', length=8*12 )
+pack2x6 = wood_pack_1d( '2x6', length=8*12 )
+
+pack_plywood5 = wood_pack_2d( 'plywood-0.5', width=4*12, length=8*12 )
+pack_plywood75 = wood_pack_2d( 'plywood-0.75', width=4*12, length=8*12 )
+
+print( "Pack 2x4 - " + str(len(pack2x4)) )
+print( pack2x4 )
+
+print( "Pack 2x6 - " + str(len(pack2x6)) )
+print( pack2x6 )
+
+print( "Pack plywood .5 - " + str(len(pack_plywood5)) )
+#print( pack_plywood5 )
+
+print( "Pack plywood .75 - " + str(len(pack_plywood75)) )
+#print( pack_plywood75 )
+
 #ALl dimensions above are in inches
 parts = scale( mm_to_in ) ( parts )
 
