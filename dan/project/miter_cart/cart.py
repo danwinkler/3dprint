@@ -9,7 +9,7 @@ import random
 from solid import *
 from solid.utils import *
 
-from wood import *
+from dan.lib.plan import *
 
 mm_to_in = 25.4
 
@@ -19,204 +19,100 @@ cart_width = platform_width + 1.5*2
 cart_depth = 24
 cart_height = 36
 shelf_height_above_ground = 4
-wing_height = 5
+miter_platform_height = 5
 wing_width = 24
 wing_tongue_length = 18
 wing_tongue_thickness = .75
 
 wing_lifted = False
 
-parts = []
+#Wood primitives
+class W2x4(Board):
+    short = 1.5
+    long = 3.5
 
-def bottom_shelf():
-    shelf_width = cart_width - 1.5 * 4
-    shelf_depth = cart_depth - 1.5 * 4
-    shelf = [
-        #Front
-        wood_2x4( shelf_width ),
-        #Back
-        translate( [0, shelf_depth - 1.5, 0 ] ) (
-            wood_2x4( shelf_width )
-        ),
-        #Left
-        translate( [0, 1.5, 0] ) (
-            cube_rot( [0, 2, 1] ) (
-                wood_2x4( shelf_depth-1.5*2 )
-            )
-        ),
-        #Right
-        translate( [shelf_width-1.5, 1.5, 0] ) (
-            cube_rot( [0, 2, 1] ) (
-                wood_2x4( shelf_depth-1.5*2 )
-            )
-        ),
-        #shelf
-        translate( [0, 0, 3.5] ) (
-            plywood( shelf_width, shelf_depth )
-        )
-    ]
-    return shelf
+class W2x6(Board):
+    short = 1.5
+    long = 5.5
 
-def leg():
-    leg_board_length = cart_height - shelf_height_above_ground - .5
-    return [
-        cube_rot( [1, 0, 2] ) (
-            wood_2x6( leg_board_length )
-        ),
-        translate( [0, 1.5, 0] ) (
-            cube_rot( [0, 1, 2] ) (
-                wood_2x4( leg_board_length )
-            )
-        ),
-        down( 1.5 ) (
-            cube_rot( [1, 2, 0] ) (
-                wood_2x6( 5.5 )
-            )
-        )
-    ]
+class WingWood(Board):
+    short = .75
+    long = 4
 
-def rim():
+class Plywood(Panel):
+    thickness = .5
+
+class WingTongueBoard(Panel):
+    thickness = wing_tongue_thickness
+
+#Cart pieces
+class BottomShelf(Part):
+    width = cart_width - W2x4.short * 4
+    depth = cart_depth - W2x4.short * 4
+
+    front = W2x4( width )
+    back = W2x4( width ).translate( 0, depth - W2x4.short, 0 )
+    left = W2x4( depth - W2x4.short*2 ).orient( 0, 2, 1 ).translate( 0, W2x4.short, 0 )
+    right = W2x4( depth - W2x4.short*2 ).orient( 0, 2, 1 ).translate( width-W2x4.short, W2x4.short, 0 )
+    platform = Plywood( width, depth ).translate( 0, 0, W2x4.long )
+
+class Leg(Part):
+    length = cart_height - shelf_height_above_ground - .5
+
+    b = W2x6( length ).orient( 1, 0, 2 )
+    a = W2x4( length ).orient( 0, 1, 2 ).translate( 0, b.short, 0 )
+    bottom = W2x6( W2x6.long ).orient( 1, 2, 0 ).translate( 0, 0, -W2x6.short )
+
+class Rim(Part):
     wing_slot_thickness = wing_tongue_thickness
-    return [
-        translate( [-wing_slot_thickness, 0, 0] ) (
-            wood_2x4( cart_width + wing_slot_thickness*2 )
-        ),
-        translate( [-wing_slot_thickness, cart_depth-1.5, 0] ) (
-            wood_2x4( cart_width + wing_slot_thickness*2 )
-        ),
-        #Left
-        translate( [-wing_slot_thickness, 1.5, 0 ] ) (
-            cube_rot( [0, 2, 1] ) (
-                wood_2x4( cart_depth - 1.5*2 )
-            )
-        ),
-        #Right
-        translate( [cart_width + wing_slot_thickness - 1.5, 1.5, 0] ) (
-            cube_rot( [0, 2, 1] ) (
-                wood_2x4( cart_depth - 1.5*2 )
-            )
-        )
-    ]
 
-def wing( angle=0 ):
-    wing_rim_wood_thickness = .75
-    wing_lower_height = 0
-    return [
-        #Attachment
-        translate( [0, 1.5, -wing_tongue_length + 3.5 - .5] ) (
-            cube_rot( [0, 2, 1] ) (
-                plywood( cart_depth - 1.5*2, wing_tongue_length, wing_tongue_thickness )
-            )
-        ),
-        translate( [wing_tongue_thickness, 0, -.5] ) (
-            cube_rot( [0, 2, 1] ) (
-                wood_2x4( cart_depth )
-            )
-        ),
-        #Moving part
-        translate( [1.5 + wing_tongue_thickness, 0, 0] ) (
-            rotate( v=[0,1,0], a=angle ) (
-                translate( [0, 0, -wing_lower_height] ) (
-                    wood( [wing_width, wing_rim_wood_thickness, wing_height+wing_lower_height] )
-                ),
-                translate( [0, cart_depth-wing_rim_wood_thickness, -wing_lower_height] ) (
-                    wood( [wing_width, wing_rim_wood_thickness, wing_height+wing_lower_height] )
-                ),
-                translate( [0, wing_rim_wood_thickness, -wing_lower_height] ) (
-                    wood( [wing_rim_wood_thickness, cart_depth-wing_rim_wood_thickness*2, wing_height+wing_lower_height] )
-                ),
-                translate( [wing_width-wing_rim_wood_thickness, wing_rim_wood_thickness, -wing_lower_height] ) (
-                    wood( [wing_rim_wood_thickness, cart_depth-wing_rim_wood_thickness*2, wing_height+wing_lower_height] )
-                ),
-                translate( [0, 0, wing_height] ) (
-                    plywood( wing_width, cart_depth )
-                )
-            )
-        )
-    ]
+    front = W2x4( cart_width + wing_slot_thickness*2 ).translate( -wing_slot_thickness, 0, 0 )
+    back = W2x4( cart_width + wing_slot_thickness*2 ).translate( -wing_slot_thickness, cart_depth-W2x4.short, 0 )
+    left = W2x4( cart_depth - W2x4.short*2 ).orient( 0, 2, 1 ).translate( -wing_slot_thickness, W2x4.short, 0 )
+    right = W2x4( cart_depth - W2x4.short*2 ).orient( 0, 2, 1 ).translate( cart_width+wing_slot_thickness-W2x4.short, W2x4.short, 0 )
 
-parts.append(
-    translate( [1.5 * 2, 1.5*2, shelf_height_above_ground] ) (
-        bottom_shelf()
-    )
-)
+class WingPlatform(Part):
+    front = WingWood( wing_width )
+    back = WingWood( wing_width ).translate( 0, cart_depth - WingWood.short, 0 )
+    left = WingWood( cart_depth - WingWood.short * 2 ).orient( 0, 2, 1 ).translate( 0, WingWood.short, 0 )
+    right = WingWood( cart_depth - WingWood.short * 2 ).orient( 0, 2, 1 ).translate( wing_width-WingWood.short, WingWood.short, 0 )
+    platform = Plywood( wing_width, cart_depth ).translate( 0, 0, WingWood.long )
 
-parts += [
-    translate( [1.5, 1.5, shelf_height_above_ground] ) (
-        leg()
-    ),
-    translate( [cart_width-1.5, 1.5, shelf_height_above_ground] ) (
-        scale( [-1, 1, 1] ) (
-            leg()
-        )
-    ),
-    translate( [cart_width-1.5, cart_depth-1.5, shelf_height_above_ground] ) (
-        scale( [-1, -1, 1] ) (
-            leg()
-        )
-    ),
-    translate( [1.5, cart_depth-1.5, shelf_height_above_ground] ) (
-        scale( [1, -1, 1] ) (
-            leg()
-        )
-    )
-]
+class Wing(Part):
+    tongue = WingTongueBoard( cart_depth - W2x4.short * 2, wing_tongue_length )
+    tongue.orient( 0, 2, 1 ).translate( 0, W2x4.short, -wing_tongue_length + W2x4.long - .5 )
 
-parts += [
-    translate( [0, 0, cart_height-3.5 - .5] ) (
-        rim()
-    )
-]
+    tongue_attachment = W2x4( cart_depth ).orient( 0, 2, 1 ).translate( wing_tongue_thickness, 0, -.5 )
 
-parts += [
-    translate( [(cart_width-platform_width) * .5, 0, cart_height-.5] ) (
-        plywood( platform_width, cart_depth )
-    )
-]
+    platform_height = miter_platform_height - WingWood.long
 
-parts += [
-    translate( [0, 1.5, cart_height - wing_tongue_length - 1.5 + 1] ) (
-        cube_rot( [0, 2, 1] ) (
-            wood_2x4( cart_depth-3 )
-        )
-    ),
-    translate( [cart_width - 1.5, 1.5, cart_height - wing_tongue_length - 1.5 + 1] ) (
-        cube_rot( [0, 2, 1] ) (
-            wood_2x4( cart_depth-3 )
-        )
-    )
-]
+    def __init__( self, angle=0 ):
+        super().__init__()
+        self.platform = WingPlatform().translate( W2x4.short + wing_tongue_thickness, 0, self.platform_height ).rotate( a=angle, v=[0, 1, 0] )
 
+class Table(Part):
+    b_shelf = BottomShelf().translate( W2x4.short*2, W2x4.short*2, shelf_height_above_ground )
 
-wings = [
-    translate( [cart_width-1.5, 0, cart_height] ) (
-        wing()
-    ),
-    translate( [1.5, 0, cart_height] ) (
-        scale( [-1, 1, 1] ) (
-            wing()
-        )
-    )
-]
+    l0 = Leg().translate( W2x4.short, W2x4.short, shelf_height_above_ground )
+    l1 = Leg().flipx().translate( cart_width-W2x4.short, W2x4.short, shelf_height_above_ground )
+    l2 = Leg().flipy().translate( W2x4.short, cart_depth-W2x4.short, shelf_height_above_ground )
+    l3 = Leg().flipx().flipy().translate( cart_width-W2x4.short, cart_depth-W2x4.short, shelf_height_above_ground )
 
-if wing_lifted:
-    wings = up( wing_tongue_length + 3 ) (
-        wings
-    )
+    rim = Rim().translate( 0, 0, cart_height - W2x4.long - .5 )
 
-parts += [wings]
+    platform = Plywood( platform_width, cart_depth ).translate((cart_width-platform_width) * .5, 0, cart_height - .5 )
 
+    wing_a = Wing().translate( cart_width-1.5, 0, cart_height )
+    wing_b = Wing().flipx().translate( 1.5, 0, cart_height )
 
-print( wood_bom() )
+t = Table().scale( mm_to_in )
 
-for i in range( 10 ):
-    plywood( 10, 20 )
+print( t.bill_of_materials() )
 
-pack2x4 = wood_pack_1d( '2x4', length=8*12 )
-pack2x6 = wood_pack_1d( '2x6', length=8*12 )
-
-pack_plywood5 = wood_pack_2d( 'plywood-0.5', width=4*12, length=8*12 )
-pack_plywood75 = wood_pack_2d( 'plywood-0.75', width=4*12, length=8*12 )
+pack2x4 = t.binpack_1d( W2x4, length=8*12 )
+pack2x6 = t.binpack_1d( W2x6, length=8*12 )
+packWingWood = t.binpack_1d( WingWood, length=8*12 )
+packPlywood = t.binpack_2d( Plywood, width=4*12, length=8*12 )
 
 print( "Pack 2x4 - " + str(len(pack2x4)) )
 print( pack2x4 )
@@ -224,15 +120,9 @@ print( pack2x4 )
 print( "Pack 2x6 - " + str(len(pack2x6)) )
 print( pack2x6 )
 
-print( "Pack plywood .5 - " + str(len(pack_plywood5)) )
-#print( pack_plywood5 )
+print( "Pack Wing Wood - " + str(len(packWingWood)) )
+print( packWingWood )
 
-print( "Pack plywood .75 - " + str(len(pack_plywood75)) )
-#print( pack_plywood75 )
+print( "pack Plywood - " + str(len(packPlywood)) )
 
-#ALl dimensions above are in inches
-parts = scale( mm_to_in ) ( parts )
-
-print( "Saving File" )
-with open( __file__ + ".scad", "w" ) as f:
-    f.write( scad_render( union() ( parts ) ) )
+t.render( __file__ + ".scad" )
