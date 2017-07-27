@@ -27,11 +27,18 @@ def plan_tstack_rotate( s, o ):
         s
     )
 
+def plan_tstack_sub( s, o ):
+    return difference() (
+        s,
+        o['o']
+    )
+
 plan_tstack_fns = {
     'orient': plan_tstack_orient,
     'translate': plan_tstack_translate,
     'scale': plan_tstack_scale,
-    'rotate': plan_tstack_rotate
+    'rotate': plan_tstack_rotate,
+    'sub': plan_tstack_sub
 }
 
 def plan_process_transform_stack( s, stack ):
@@ -45,6 +52,10 @@ class Primitive:
 class Cube(Primitive):
     def __init__( self, x, y, z ):
         self.solid = cube( [x, y, z] )
+
+class Cylinder(Primitive):
+    def __init__( self, h, r ):
+        self.solid = cylinder( r=r, h=h )
 
 class Part:
     def __init__( self ):
@@ -116,6 +127,13 @@ class Part:
         })
         return self
 
+    def cut( self, o ):
+        self.plan_transform_stack.append({
+            'type': 'sub',
+            'o': o.get_solid()
+        })
+        return self
+
     def get_solid( self ):
         part = []
         attrs = dir( self )
@@ -169,6 +187,9 @@ class Part:
         for v in parts:
             if( v['type'] == t ):
                 values += [v[key]]
+
+        if len(values) == 0:
+            return []
 
         return binpacking.to_constant_volume( values, kwargs[key] )
 
@@ -255,3 +276,10 @@ class Panel(Part):
             'width': self.width,
             'length': self.length
         }
+
+class Rod(Part):
+    def __init__( self, r, h ):
+        super().__init__()
+        self.r = r
+        self.h = h
+        self.part = Cylinder( r=r, h=h )

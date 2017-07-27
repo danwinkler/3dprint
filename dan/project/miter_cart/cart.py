@@ -59,9 +59,9 @@ class BottomShelf(Part):
 class Leg(Part):
     length = cart_height - shelf_height_above_ground - .5
 
-    b = W2x6( length ).orient( 1, 0, 2 )
+    b = W2x6( length ).orient( 1, 0, 2 ).translate( -wing_tongue_thickness, 0, 0 )
     a = W2x4( length ).orient( 0, 1, 2 ).translate( 0, b.short, 0 )
-    bottom = W2x6( W2x6.long ).orient( 1, 2, 0 ).translate( 0, 0, -W2x6.short )
+    bottom = W2x6( W2x6.long ).orient( 1, 2, 0 ).translate( -wing_tongue_thickness, 0, -W2x6.short )
 
 class Rim(Part):
     wing_slot_thickness = wing_tongue_thickness
@@ -77,18 +77,39 @@ class WingPlatform(Part):
     left = WingWood( cart_depth - WingWood.short * 2 ).orient( 0, 2, 1 ).translate( 0, WingWood.short, 0 )
     right = WingWood( cart_depth - WingWood.short * 2 ).orient( 0, 2, 1 ).translate( wing_width-WingWood.short, WingWood.short, 0 )
     platform = Plywood( wing_width, cart_depth ).translate( 0, 0, WingWood.long )
+    support_pos = (wing_width)*.5 + 2
+    support_a = WingWood( cart_depth - WingWood.short * 2 ).orient( 1, 2, 0 ).translate( support_pos - WingWood.long*.5, WingWood.short, 0 )
+    screw_length = W2x4.long + (miter_platform_height - WingWood.long)
+    support_screw = Rod( r=.2, h=screw_length ).translate( support_pos, cart_depth*.5, -screw_length )
 
 class Wing(Part):
-    tongue = WingTongueBoard( cart_depth - W2x4.short * 2, wing_tongue_length )
-    tongue.orient( 0, 2, 1 ).translate( 0, W2x4.short, -wing_tongue_length + W2x4.long - .5 )
+    tongue = WingTongueBoard( cart_depth - W2x4.short * 2 - W2x6.short * 2, wing_tongue_length )
+    tongue.orient( 0, 2, 1 ).translate( 0, W2x4.short + W2x6.short, -wing_tongue_length + W2x4.long - .5 )
 
     tongue_attachment = W2x4( cart_depth ).orient( 0, 2, 1 ).translate( wing_tongue_thickness, 0, -.5 )
 
     platform_height = miter_platform_height - WingWood.long
 
+    tongue.cut( Rod( r=1, h=10 ).rotate( v=[0, 1, 0], a=90 ).translate( -1, cart_depth*.5, -WingPlatform.support_pos + platform_height ) )
+
     def __init__( self, angle=0 ):
         super().__init__()
-        self.platform = WingPlatform().translate( W2x4.short + wing_tongue_thickness, 0, self.platform_height ).rotate( a=angle, v=[0, 1, 0] )
+        self.platform = WingPlatform().rotate( a=angle, v=[0, 1, 0] ).translate( W2x4.short + wing_tongue_thickness, 0, self.platform_height )
+
+class WingSupport(Part):
+    tongue_support_height = 2
+    tongue_support = WingTongueBoard( cart_depth - W2x4.short * 2 - W2x6.short * 2, tongue_support_height )
+    tongue_support.orient( 0, 2, 1 ).translate( 0, W2x4.short + W2x6.short, -wing_tongue_length + W2x4.long - .5 - tongue_support_height )
+
+    wing_height = 24
+    wing_depth = cart_depth - W2x4.short * 2
+    wing_angle = 0
+    wing = WingTongueBoard( wing_depth, wing_height )
+    wing.orient( 0, 1, 2 )
+    wing.rotate( a=-wing_angle, v=[0, 0, 1] )
+    wing.translate( wing_tongue_thickness, W2x6.short, -W2x4.long - wing_height - .5 )
+    # This hole is only visible when the wing is in, because im lazy
+    wing.cut( Rod( r=1, h=10 ).rotate( v=[0, 1, 0], a=90 ).translate( -1, cart_depth*.5, -WingPlatform.support_pos + Wing.platform_height ) )
 
 class Table(Part):
     b_shelf = BottomShelf().translate( W2x4.short*2, W2x4.short*2, shelf_height_above_ground )
@@ -102,8 +123,11 @@ class Table(Part):
 
     platform = Plywood( platform_width, cart_depth ).translate((cart_width-platform_width) * .5, 0, cart_height - .5 )
 
-    wing_a = Wing().translate( cart_width-1.5, 0, cart_height )
-    wing_b = Wing().flipx().translate( 1.5, 0, cart_height )
+    wing_a = Wing( 0 ).translate( cart_width-1.5, 0, cart_height )
+    wing_b = Wing( 0 ).flipx().translate( 1.5, 0, cart_height )
+
+    wing_support_a = WingSupport().translate( cart_width-1.5, 0, cart_height )
+    wing_support_b = WingSupport().flipx().translate( 1.5, 0, cart_height )
 
 t = Table().scale( mm_to_in )
 
