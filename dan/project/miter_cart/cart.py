@@ -137,6 +137,7 @@ pack2x4 = t.binpack_1d( W2x4, length=8*12 )
 pack2x6 = t.binpack_1d( W2x6, length=8*12 )
 packWingWood = t.binpack_1d( WingWood, length=8*12 )
 packPlywood = t.binpack_2d( Plywood, width=4*12, length=8*12 )
+packWingTongueBoard = t.binpack_2d( WingTongueBoard, width=4*12, length=8*12 )
 
 print( "Pack 2x4 - " + str(len(pack2x4)) )
 print( pack2x4 )
@@ -146,6 +147,8 @@ print( pack2x6 )
 
 print( "Pack Wing Wood - " + str(len(packWingWood)) )
 print( packWingWood )
+
+print( "Pack Wing Board - " + str(len(packWingTongueBoard)) )
 
 print( "pack Plywood - " + str(len(packPlywood)) )
 
