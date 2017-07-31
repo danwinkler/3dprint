@@ -58,8 +58,15 @@ class Cylinder(Primitive):
         self.solid = cylinder( r=r, h=h )
 
 class Part:
-    def __init__( self ):
-        self.plan_transform_stack = []
+    def p_t_s_set( self, a ):
+        self.__dict__['__plan_transform_stack'] = a
+
+    def p_t_s_get( self ):
+        if not hasattr( self, '__plan_transform_stack' ):
+            self.p_t_s_set( [] )
+        return self.__dict__['__plan_transform_stack']
+
+    plan_transform_stack = property( p_t_s_get, p_t_s_set )
 
     def orient( self, x, y, z ):
         self.plan_transform_stack.append({
@@ -247,7 +254,6 @@ class Board(Part):
     long = 3.5
 
     def __init__( self, length ):
-        super().__init__()
         self.length = length
         self.part = Cube( length, self.short, self.long )
 
@@ -263,7 +269,6 @@ class Panel(Part):
     thickness = .5
 
     def __init__( self, width, length ):
-        super().__init__()
         self.width = width
         self.length = length
         self.part = Cube( width, length, self.thickness )
@@ -279,7 +284,6 @@ class Panel(Part):
 
 class Rod(Part):
     def __init__( self, r, h ):
-        super().__init__()
         self.r = r
         self.h = h
         self.part = Cylinder( r=r, h=h )

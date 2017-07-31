@@ -93,7 +93,6 @@ class Wing(Part):
     tongue.cut( Rod( r=1, h=10 ).rotate( v=[0, 1, 0], a=90 ).translate( -1, cart_depth*.5, -WingPlatform.support_pos + platform_height ) )
 
     def __init__( self, angle=0 ):
-        super().__init__()
         self.platform = WingPlatform().rotate( a=angle, v=[0, 1, 0] ).translate( W2x4.short + wing_tongue_thickness, 0, self.platform_height )
 
 class WingSupport(Part):
