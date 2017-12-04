@@ -3,6 +3,8 @@ from solid.utils import *
 
 import random
 
+in_to_mm = 25.4
+
 class Vec3:
 	def __init__( self, x=0, y=0, z=0 ):
 		self.set( x, y, z )
@@ -299,3 +301,8 @@ def make_trunk( height, sections, pf, index=False ):
 		triangles.append( [((height-1)*sections)+s,max+1,((height-1)*sections)+s2] )
 
 	return polyhedron( points=points, faces=triangles )
+
+def in_inches(fn):
+	def wrapper(*args, **kwargs):
+		return scale(in_to_mm)(fn(*args, **kwargs))
+	return wrapper
