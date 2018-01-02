@@ -33,12 +33,16 @@ def plan_tstack_sub( s, o ):
         o['o']
     )
 
+def plan_tstack_minkowski(s, o):
+    return minkowski()(s, o['o'])
+
 plan_tstack_fns = {
     'orient': plan_tstack_orient,
     'translate': plan_tstack_translate,
     'scale': plan_tstack_scale,
     'rotate': plan_tstack_rotate,
-    'sub': plan_tstack_sub
+    'sub': plan_tstack_sub,
+    'minkowski': plan_tstack_minkowski
 }
 
 def plan_process_transform_stack( s, stack ):
@@ -56,6 +60,10 @@ class Cube(Primitive):
 class Cylinder(Primitive):
     def __init__( self, h, r ):
         self.solid = cylinder( r=r, h=h )
+
+class Sphere(Primitive):
+    def __init__(self, r, segments=12):
+        self.solid = sphere(r=r, segments=segments)
 
 class Part:
     def p_t_s_set( self, a ):
@@ -137,6 +145,13 @@ class Part:
     def cut( self, o ):
         self.plan_transform_stack.append({
             'type': 'sub',
+            'o': o.get_solid()
+        })
+        return self
+
+    def minkowski( self, o ):
+        self.plan_transform_stack.append({
+            'type': 'minkowski',
             'o': o.get_solid()
         })
         return self
@@ -268,9 +283,13 @@ class Board(Part):
 class Panel(Part):
     thickness = .5
 
-    def __init__( self, width, length ):
+    def __init__( self, width, length, thickness=None ):
         self.width = width
         self.length = length
+
+        if thickness:
+            self.thickness = thickness
+
         self.part = Cube( width, length, self.thickness )
 
     def bom_info( self ):
@@ -287,3 +306,91 @@ class Rod(Part):
         self.r = r
         self.h = h
         self.part = Cylinder( r=r, h=h )
+
+class CubePart(Part):
+    def __init__(self, x, y, z):
+        self.cube = Cube(x, y, z)
+
+class SpherePart(Part):
+    def __init__(self, r, segments=12):
+        self.sphere = Sphere(r, segments)
+
+class Box(Part):
+    def __init__(
+            self,
+            width,
+            length,
+            height,
+            bottom=1,
+            left=1,
+            right=1,
+            front=1,
+            back=1,
+            top=1,
+            thickness=None,
+            roundover=None,
+            roundoversegments=12
+        ):
+        if thickness:
+            bottom = left = right = front = back = top = thickness
+
+        self.width = width
+        self.length = length
+        self.height = height
+
+        self.bottom = bottom
+        self.left = left
+        self.right = right
+        self.front = front
+        self.back = back
+        self.top = top
+
+        if top == 0:
+            top = -1
+        if bottom == 0:
+            bottom = -1
+        if left == 0:
+            left = -1
+        if right == 0:
+            right = -1
+        if front == 0:
+            front = -1
+        if back == 0:
+            back = -1
+
+        boxwidth = width
+        boxlength = length
+        boxheight = height
+        if roundover:
+            boxwidth -= roundover*2
+            boxlength -= roundover*2
+            boxheight -= roundover*2
+
+        self.box = CubePart(boxwidth, boxlength, boxheight)
+
+        if roundover:
+            self.box.translate(roundover, roundover, roundover)
+            self.box.minkowski(SpherePart(roundover, roundoversegments))
+
+        self.box.cut(
+            CubePart(
+                width-(left+right),
+                length-(front+back),
+                height-(top+bottom)
+            ).translate(left, front, bottom)
+        )
+
+    def inner_corner(self, x, y, z):
+        rx = self.left if x == 0 else self.width - self.right
+        ry = self.front if y == 0 else self.length - self.back
+        rz = self.bottom if z == 0 else self.height - self.top
+        return rx, ry, rz
+
+    def place_in_corner(self, o, x, y, z):
+        if x == 1:
+            o.flipx()
+        if y == 1:
+            o.flipy()
+        if z == 1:
+            o.flipz()
+        return o.translate(*self.inner_corner(x, y, z))

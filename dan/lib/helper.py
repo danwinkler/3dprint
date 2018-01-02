@@ -67,15 +67,23 @@ class Vec3:
 		return Vec3( cross_x, cross_y, cross_z )
 
 	def __add__( self, other ):
+		if isinstance(other, (list, tuple)):
+			other = Vec3(*other)
 		return Vec3( self.x + other.x, self.y + other.y, self.z + other.z )
 
 	def __sub__( self, other ):
+		if isinstance(other, (list, tuple)):
+			other = Vec3(*other)
 		return Vec3( self.x - other.x, self.y - other.y, self.z - other.z )
 
 	def __mul__( self, val ):
+		if isinstance(other, (list, tuple)):
+			other = Vec3(*other)
 		return Vec3( self.x * val, self.y * val, self.z * val )
 
 	def __iadd__( self, other ):
+		if isinstance(other, (list, tuple)):
+			other = Vec3(*other)
 		self.x += other.x
 		self.y += other.y
 		self.z += other.z
@@ -114,7 +122,7 @@ class Vec3:
 			raise Exception("Invalid index to Vec3")
 
 	def __repr__( self ):
-		return "(" + str(self.x) + ", " + str(self.y) + ", " + str(self.z) + ")"
+		return '({}, {}, {})'.format(*self.to_list())
 
 #Find distance from point p to line segment
 def point_to_line_segment( p, l0, l1 ):
