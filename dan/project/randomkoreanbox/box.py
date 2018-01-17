@@ -11,7 +11,7 @@ import random
 from solid import *
 from solid.utils import *
 
-circuit_board_size = Vec3(50, 20) #TODO: set
+circuit_board_size = Vec3(60, 40) #TODO: set
 
 box_inner_size = circuit_board_size.copy()
 box_inner_size.z = 30 #TODO: set
@@ -33,7 +33,7 @@ class KoreanBox(Part):
         front=wall_thickness,
         back=wall_thickness,
         top=0,
-        roundover=1.5
+        roundover=2
     )
 
     screw_hole_a = box.place_in_corner(ScrewHoleBlock(), 0, 0, 0)

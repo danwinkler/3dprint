@@ -58,8 +58,8 @@ class Cube(Primitive):
         self.solid = cube( [x, y, z] )
 
 class Cylinder(Primitive):
-    def __init__( self, h, r ):
-        self.solid = cylinder( r=r, h=h )
+    def __init__( self, h, r, segments=12 ):
+        self.solid = cylinder( r=r, h=h, segments=segments )
 
 class Sphere(Primitive):
     def __init__(self, r, segments=12):
@@ -302,10 +302,10 @@ class Panel(Part):
         }
 
 class Rod(Part):
-    def __init__( self, r, h ):
+    def __init__(self, r, h, segments=12):
         self.r = r
         self.h = h
-        self.part = Cylinder( r=r, h=h )
+        self.part = Cylinder(r=r, h=h, segments=segments)
 
 class CubePart(Part):
     def __init__(self, x, y, z):
@@ -345,8 +345,15 @@ class Box(Part):
         self.back = back
         self.top = top
 
+        boxwidth = width
+        boxlength = length
+        boxheight = height
+
         if top == 0:
             top = -1
+            if roundover:
+                boxheight += roundover
+
         if bottom == 0:
             bottom = -1
         if left == 0:
@@ -358,9 +365,6 @@ class Box(Part):
         if back == 0:
             back = -1
 
-        boxwidth = width
-        boxlength = length
-        boxheight = height
         if roundover:
             boxwidth -= roundover*2
             boxlength -= roundover*2
@@ -371,6 +375,13 @@ class Box(Part):
         if roundover:
             self.box.translate(roundover, roundover, roundover)
             self.box.minkowski(SpherePart(roundover, roundoversegments))
+
+            if top <= 0:
+                self.box.cut(
+                    CubePart(
+                        width, length, roundover+1
+                    ).translate(0, 0, height)
+                )
 
         self.box.cut(
             CubePart(
