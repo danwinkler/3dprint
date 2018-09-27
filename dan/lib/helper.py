@@ -76,10 +76,10 @@ class Vec3:
 			other = Vec3(*other)
 		return Vec3( self.x - other.x, self.y - other.y, self.z - other.z )
 
-	def __mul__( self, val ):
+	def __mul__( self, other ):
 		if isinstance(other, (list, tuple)):
 			other = Vec3(*other)
-		return Vec3( self.x * val, self.y * val, self.z * val )
+		return Vec3( self.x * other, self.y * other, self.z * other )
 
 	def __iadd__( self, other ):
 		if isinstance(other, (list, tuple)):
@@ -95,7 +95,7 @@ class Vec3:
 		self.z *= val
 		return self
 
-	def __idiv__( self, val ):
+	def __itruediv__( self, val ):
 		self.x /= val
 		self.y /= val
 		self.z /= val
@@ -314,3 +314,24 @@ def in_inches(fn):
 	def wrapper(*args, **kwargs):
 		return scale(in_to_mm)(fn(*args, **kwargs))
 	return wrapper
+
+class PolyhedronBuilder:
+	def __init__(self):
+		self.points = []
+		self.triangles = []
+	
+	def add_point(self, v):
+		p = (v.x, v.y, v.z)
+		if p not in self.points:
+			self.points.append(p)
+		return self.points.index(p)
+
+	def triangle(self, v0, v1, v2):
+		i0 = self.add_point(v0)
+		i1 = self.add_point(v1)
+		i2 = self.add_point(v2)
+
+		self.triangles.append((i0, i1, i2))
+	
+	def build(self):
+		return polyhedron(points=self.points, faces=self.triangles)
