@@ -1,5 +1,6 @@
 import sys
-sys.path.append( "../../../" )
+
+sys.path.append("../../../")
 
 from dan.lib.helper import *
 
@@ -11,8 +12,8 @@ from solid.utils import *
 
 parts = []
 
-parts.append( cylinder( 10, 40 ) )
+parts.append(cylinder(10, 40))
 
-print( "Saving File" )
-with open( __file__ + ".scad", "w" ) as f:
-    f.write( scad_render( union() ( parts ) ) )
+print("Saving File")
+with open(__file__ + ".scad", "w") as f:
+    f.write(scad_render(union()(parts)))

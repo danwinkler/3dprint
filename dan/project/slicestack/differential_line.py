@@ -5,6 +5,7 @@ from dan.lib.helper import Vec3
 
 _node_id = 0
 
+
 class NodeData:
     def __init__(self, node):
         self.pos = Vec3(node.pos)
@@ -18,7 +19,7 @@ class NodeData:
 
 class Node:
     NEIGHBOR_DISTANCE = 5
-    NEIGHBOR_PUSH_SCALAR = .05
+    NEIGHBOR_PUSH_SCALAR = 0.05
     OTHER_PUSH_SCALAR = 10
     MAX_DIST_OTHER = NEIGHBOR_DISTANCE * 5
 
@@ -31,17 +32,17 @@ class Node:
 
         self.id = _node_id
         _node_id += 1
-    
+
     def set_prev(self, node):
         if self.prev != node:
             self.prev = node
             node.set_next(self)
-    
+
     def set_next(self, node):
         if self.next != node:
             self.next = node
             node.set_prev(self)
-    
+
     def update(self, nodes):
         # Maintain distance from neighbors
         self.pos_next.set(self.pos)
@@ -52,14 +53,14 @@ class Node:
         for node in nodes:
             if node in (self.next, self.prev, self):
                 continue
-            
+
             self.other_push(node)
-            
+
     def other_push(self, node):
         vec = self.pos - node.pos
         distance2 = vec.length2()
 
-        if distance2 > self.MAX_DIST_OTHER**2:
+        if distance2 > self.MAX_DIST_OTHER ** 2:
             return
 
         distance = math.sqrt(distance2)
@@ -67,9 +68,9 @@ class Node:
         vec_norm /= distance
 
         push_force = vec_norm * ((1 / distance) * self.OTHER_PUSH_SCALAR)
-        
+
         self.pos_next += push_force
-    
+
     def neighbor_push(self, node):
         vec = self.pos - node.pos
         distance = vec.length()
@@ -81,16 +82,19 @@ class Node:
         push_force *= -1
 
         self.pos_next += push_force
-    
+
     def __repr__(self):
-        return '<Node id:{} prev:{} next:{}>'.format(self.id, self.prev.id, self.next.id)
+        return "<Node id:{} prev:{} next:{}>".format(
+            self.id, self.prev.id, self.next.id
+        )
+
 
 class DiffLine:
     def __init__(self):
         self.root = None
         self.nodes = []
         random.seed(0)
-    
+
     def init_circle(self):
         radius = 35
         num_points = math.floor((radius * math.pi * 2) / Node.NEIGHBOR_DISTANCE)
@@ -107,12 +111,12 @@ class DiffLine:
         previous.set_next(self.root)
 
     def insert_node(self):
-        insert_index = random.randint(1, len(self.nodes)-1)
+        insert_index = random.randint(1, len(self.nodes) - 1)
         prev = self.nodes[insert_index]
         next = prev.next
 
-        node = Node((prev.pos.x+next.pos.x) * .5, (prev.pos.y+next.pos.y) * .5)
-        self.nodes.insert(insert_index+1, node)
+        node = Node((prev.pos.x + next.pos.x) * 0.5, (prev.pos.y + next.pos.y) * 0.5)
+        self.nodes.insert(insert_index + 1, node)
         prev.set_next(node)
         next.set_prev(node)
 
@@ -120,7 +124,7 @@ class DiffLine:
         self.insert_node()
 
         for i, node in enumerate(self.nodes):
-            if self.nodes[(i+1) % len(self.nodes)] != node.next:
+            if self.nodes[(i + 1) % len(self.nodes)] != node.next:
                 raise Exception
 
         for node in self.nodes:
@@ -131,5 +135,3 @@ class DiffLine:
 
     def get_nodes(self):
         return self.nodes
-
-

@@ -28,8 +28,8 @@ for z in range(10):
     rad = random.uniform(1, 3)
     for i in range(num):
         a = (i / num) * math.pi * 2
-        row.append(Vec3(math.cos(a) * rad, math.sin(a)*rad, z))
-    
+        row.append(Vec3(math.cos(a) * rad, math.sin(a) * rad, z))
+
     row = deque(row)
 
     row.rotate(random.randint(0, len(row)))
@@ -40,7 +40,6 @@ for z in range(10):
 
 parts.append(rings_to_polyhedron(rows))
 
-print( "Saving File" )
-with open( __file__ + ".scad", "w" ) as f:
-    f.write( scad_render( union() ( parts ) ) )
-
+print("Saving File")
+with open(__file__ + ".scad", "w") as f:
+    f.write(scad_render(union()(parts)))

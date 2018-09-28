@@ -1,2 +1,2 @@
-t=translate
-o=cube([30,30,2])+[]
+t = translate
+o = cube([30, 30, 2]) + []
