@@ -1,7 +1,10 @@
+import random
+from collections import namedtuple, deque
+
 from solid import *
 from solid.utils import *
 
-import random
+from dan.lib import polytri
 
 in_to_mm = 25.4
 
@@ -314,6 +317,96 @@ def in_inches(fn):
 	def wrapper(*args, **kwargs):
 		return scale(in_to_mm)(fn(*args, **kwargs))
 	return wrapper
+
+def rings_to_polyhedron(rings):
+    """
+    Given a stack of polygons, turn it into a polyhedron
+
+    Arguments:
+        rings: list of list of Vec3 - Each list of Vec3s is a layer in a stack
+    """
+
+    IndexedPoint = namedtuple('IndexedPoint', ['point', 'index'])
+    pb = PolyhedronBuilder()
+
+    for i, ring0 in enumerate(rings):
+        print('Ring', i)
+        if i == len(rings)-1:
+            break
+        
+        ring1 = rings[i+1]
+
+        iring1 = []
+
+        for p1 in ring1:
+            min_index, min_point = min(enumerate(ring0), key=lambda p: p[1].distance(p1))
+            iring1.append(IndexedPoint(p1, min_index))
+
+        # Rotate list
+        iring1 = deque(iring1)
+        min_value = min(iring1, key=lambda i: i.index)
+        # TODO: we can probably do this in one rotate
+        while iring1[0].index != min_value.index or iring1[-1].index == min_value.index:
+            iring1.rotate(1)
+        
+        iring1 = list(iring1)
+
+        # If the iring indicies rotate back around to zero, things get complicated, so lets take those values and add the length of ring0 to them
+        for i in range(1, len(iring1)):
+            if iring1[i].index < iring1[i-1].index:
+                iring1[i].index += len(ring0)
+
+        i0 = 0
+        i1 = 0
+        side = False
+        while True:
+            r0_a = ring0[i0 % len(ring0)]
+            r0_b = ring0[(i0+1) % len(ring0)]
+            r1i_a = iring1[i1 % len(iring1)]
+            r1i_b = iring1[(i1+1) % len(ring1)]
+
+            r1_a = r1i_a.point
+            r1_b = r1i_b.point
+
+            if side:
+                pb.triangle(r0_a, r1_a, r1_b)
+
+                i1 += 1
+
+                if i0 >= len(ring0) and i1 >= len(ring1):
+                    break
+
+                if r1i_b.index > i0 or i1 >= len(ring1):
+                    side = False
+            else:
+                pb.triangle(r0_a, r1_a, r0_b)
+
+                i0 += 1
+
+                if i0 >= len(ring0) and i1 >= len(ring1):
+                    break
+
+                if i0 > r1i_a.index or i0 >= len(ring0):
+                    side = True
+
+    def triangulate_layer(layer, order=1):
+        z = layer[0].z
+
+        points = [(p.x, p.y) for p in layer]
+
+        tris = polytri.triangulate(points)
+
+        for triangle in tris:
+            pb.triangle(
+                *[Vec3(p[0], p[1], z) for p in triangle][::order]
+            )
+
+
+    triangulate_layer(rings[0])
+    triangulate_layer(rings[-1], order=-1)
+
+    return pb.build()
+
 
 class PolyhedronBuilder:
 	def __init__(self):
