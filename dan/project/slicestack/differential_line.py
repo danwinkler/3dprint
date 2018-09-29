@@ -96,7 +96,7 @@ class DiffLine:
         random.seed(0)
 
     def init_circle(self):
-        radius = 35
+        radius = 12
         num_points = math.floor((radius * math.pi * 2) / Node.NEIGHBOR_DISTANCE)
 
         self.root = Node(radius, 0)

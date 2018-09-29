@@ -120,7 +120,7 @@ class Vec3:
         if key == 0:
             self.x = value
         elif key == 1:
-            self.y = valye
+            self.y = value
         elif key == 2:
             self.z = value
         else:
@@ -332,6 +332,10 @@ def in_inches(fn):
 
     return wrapper
 
+class IndexedPoint:
+    def __init__(self, point, index):
+        self.point = point
+        self.index = index
 
 def rings_to_polyhedron(rings, progress_stdout=False):
     """
@@ -341,7 +345,6 @@ def rings_to_polyhedron(rings, progress_stdout=False):
         rings: list of list of Vec3 - Each list of Vec3s is a layer in a stack
     """
 
-    IndexedPoint = namedtuple("IndexedPoint", ["point", "index"])
     pb = PolyhedronBuilder()
 
     it = enumerate(rings)
@@ -355,9 +358,15 @@ def rings_to_polyhedron(rings, progress_stdout=False):
 
         iring1 = []
 
+        # TODO: Reorder ring1
+        # Start by finding the point on ring1 closest to ring0[0]. That will be ring1_ordered[0]
+        # ring0_index = 0
+        # Then, while there are remaining points on ring1, find the next point that has the smallest (distance to the previous ring1 point + min(distance to ring0[ring0_index], distance to ring0[ring0_index+1]))
+        # If distance to ring0[ring0_index+1] was smaller, ring0_index += 1
+
         for p1 in ring1:
             min_index, min_point = min(
-                enumerate(ring0), key=lambda p: p[1].distance(p1)
+                enumerate(ring0), key=lambda p: Vec3(p[1].x, p[1].y).distance2(Vec3(p1.x, p1.y))
             )
             iring1.append(IndexedPoint(p1, min_index))
 
@@ -369,6 +378,13 @@ def rings_to_polyhedron(rings, progress_stdout=False):
             iring1.rotate(1)
 
         iring1 = list(iring1)
+
+        # Assert that iring1 indicies are ordered
+        last_index = iring1[0].index
+        for i, ip in enumerate(iring1):
+            if ip.index < last_index:
+                ip.index = last_index
+            last_index = ip.index
 
         # If the iring indicies rotate back around to zero, things get complicated, so lets take those values and add the length of ring0 to them
         for i in range(1, len(iring1)):

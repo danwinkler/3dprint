@@ -19,13 +19,13 @@ df = DiffLine()
 df.init_circle()
 
 layers = []
-height = 100
+height = 400
 flip = False
 
 for i in tqdm(range(height)):
     df.update()
 
-    if i % 5 == 0:
+    if i % 10 == 0:
         layer = []
         for n in df.nodes:
             nd = NodeData(n)
@@ -44,22 +44,30 @@ def shrink_layer(layer, offset):
 
     pco = pyclipper.PyclipperOffset()
     pco.AddPath(
-        [(p.x, p.y) for p in layer], pyclipper.JT_SQUARE, pyclipper.ET_CLOSEDPOLYGON
+        [(p.x, p.y) for p in layer],
+        pyclipper.JT_ROUND,
+        pyclipper.ET_CLOSEDPOLYGON
     )
 
     solution = pco.Execute(-offset)
 
-    # Only use the first solution, if there's more than one we're fucked anyhow
-    return [Vec3(p[0], p[1], z) for s in solution[0]]
+    if len(solution) > 1:
+        print( "warning, solution len: {}".format(len(solution)))
+
+    # Only use the longest solution, if there's more than one we're probably fucked anyhow
+    path = max(solution, key=lambda d: len(d))
+
+    return [Vec3(p[0], p[1], z) for p in path]
 
 
-shrink_amount = 2
+shrink_amount = 5
 shrunk_layers = [shrink_layer(layer, shrink_amount) for layer in layers]
 
-outer = rings_to_polyhedron(layers[:-1])
-inner = rings_to_polyhedron(shrunk_layers[1:])
+outer = rings_to_polyhedron(layers[:-1], progress_stdout=True)
+inner = rings_to_polyhedron(shrunk_layers[1:], progress_stdout=True)
 
-# parts.append( outer )
+#parts.append( outer )
+#parts.append( inner )
 parts.append(outer - inner)
 
 print("Saving File")
