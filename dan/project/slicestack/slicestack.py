@@ -19,7 +19,7 @@ df = DiffLine()
 df.init_circle()
 
 layers = []
-height = 400
+height = 160
 flip = False
 
 for i in tqdm(range(height)):

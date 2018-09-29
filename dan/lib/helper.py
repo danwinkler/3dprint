@@ -356,19 +356,45 @@ def rings_to_polyhedron(rings, progress_stdout=False):
 
         ring1 = rings[i + 1]
 
-        iring1 = []
-
         # TODO: Reorder ring1
         # Start by finding the point on ring1 closest to ring0[0]. That will be ring1_ordered[0]
         # ring0_index = 0
         # Then, while there are remaining points on ring1, find the next point that has the smallest (distance to the previous ring1 point + min(distance to ring0[ring0_index], distance to ring0[ring0_index+1]))
         # If distance to ring0[ring0_index+1] was smaller, ring0_index += 1
 
+        ring1_to_add = ring1[:] # Copy list
+        iring1 = []
+        # Find point on ring1 closest to ring0[0]
+        closest_index, closest_point = min(enumerate(ring1_to_add), key=lambda ip: ip[1].distance2(ring0[0]))
+        iring1.append(IndexedPoint(closest_point, 0))
+        del ring1_to_add[closest_index]
+
+        ring0_index = 0
+        while len(ring1_to_add) > 0:
+            closest_to_current_index, closest_to_current_point, closest_to_current_distance = min([
+                (i, p, p.distance(iring1[-1].point) + p.distance(ring0[ring0_index])) for i, p in enumerate(ring1_to_add)
+            ], key=lambda ipd: ipd[2])
+
+            closest_to_next_index, closest_to_next_point, closest_to_next_distance = min([
+                (i, p, p.distance(iring1[-1].point) + p.distance(ring0[(ring0_index+1)%len(ring0)])) for i, p in enumerate(ring1_to_add)
+            ], key=lambda ipd: ipd[2])
+
+            if closest_to_current_distance < closest_to_next_distance:
+                iring1.append(IndexedPoint(closest_to_current_point, ring0_index))
+                del ring1_to_add[closest_to_current_index]
+            else:
+                ring0_index = (ring0_index + 1) % len(ring0)
+                iring1.append(IndexedPoint(closest_to_next_point, ring0_index))
+                del ring1_to_add[closest_to_next_index]
+
+        """
         for p1 in ring1:
             min_index, min_point = min(
                 enumerate(ring0), key=lambda p: Vec3(p[1].x, p[1].y).distance2(Vec3(p1.x, p1.y))
             )
             iring1.append(IndexedPoint(p1, min_index))
+        """
+
 
         # Rotate list
         iring1 = deque(iring1)
