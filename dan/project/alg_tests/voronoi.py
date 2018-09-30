@@ -30,6 +30,6 @@ for region in regions:
         )
     )
 
-print "Saving File"
+print("Saving File")
 with open( __file__ + ".scad", "w" ) as f:
     f.write( scad_render( union() ( parts ) ) )

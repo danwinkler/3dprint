@@ -332,6 +332,19 @@ def in_inches(fn):
 
     return wrapper
 
+def triangulate_layer(pb, layer, order=1):
+    try:
+        z = layer[0].z
+
+        points = [(p.x, p.y) for p in layer]
+
+        tris = polytri.triangulate(points)
+
+        for triangle in tris:
+            pb.triangle(*[Vec3(p[0], p[1], z) for p in triangle][::order])
+    except ValueError as e:
+        print(e)
+
 class IndexedPoint:
     def __init__(self, point, index):
         self.point = point
@@ -340,6 +353,8 @@ class IndexedPoint:
 def rings_to_polyhedron(rings, progress_stdout=False):
     """
     Given a stack of polygons, turn it into a polyhedron
+
+    This function doesn't work quite right ....
 
     Arguments:
         rings: list of list of Vec3 - Each list of Vec3s is a layer in a stack
@@ -356,12 +371,12 @@ def rings_to_polyhedron(rings, progress_stdout=False):
 
         ring1 = rings[i + 1]
 
-        # TODO: Reorder ring1
+        # Reorder ring1
         # Start by finding the point on ring1 closest to ring0[0]. That will be ring1_ordered[0]
         # ring0_index = 0
         # Then, while there are remaining points on ring1, find the next point that has the smallest (distance to the previous ring1 point + min(distance to ring0[ring0_index], distance to ring0[ring0_index+1]))
         # If distance to ring0[ring0_index+1] was smaller, ring0_index += 1
-
+        """
         ring1_to_add = ring1[:] # Copy list
         iring1 = []
         # Find point on ring1 closest to ring0[0]
@@ -386,36 +401,42 @@ def rings_to_polyhedron(rings, progress_stdout=False):
                 ring0_index = (ring0_index + 1) % len(ring0)
                 iring1.append(IndexedPoint(closest_to_next_point, ring0_index))
                 del ring1_to_add[closest_to_next_index]
-
         """
+
+        iring1 = []
         for p1 in ring1:
             min_index, min_point = min(
                 enumerate(ring0), key=lambda p: Vec3(p[1].x, p[1].y).distance2(Vec3(p1.x, p1.y))
             )
             iring1.append(IndexedPoint(p1, min_index))
-        """
+        
+        initial_iring1 = iring1[:]
+        while True:
+            # Rotate list
+            iring1 = deque(iring1)
+            min_value = min(iring1, key=lambda i: i.index)
+            # TODO: we can probably do this in one rotate
+            while iring1[0].index != min_value.index or iring1[-1].index == min_value.index:
+                iring1.rotate(1)
 
+            iring1 = list(iring1)
 
-        # Rotate list
-        iring1 = deque(iring1)
-        min_value = min(iring1, key=lambda i: i.index)
-        # TODO: we can probably do this in one rotate
-        while iring1[0].index != min_value.index or iring1[-1].index == min_value.index:
-            iring1.rotate(1)
+            # Assert that iring1 indicies are ordered
+            last_index = iring1[0].index
+            for i, ip in enumerate(iring1):
+                if ip.index < last_index:
+                    ip.index = last_index
+                last_index = ip.index
 
-        iring1 = list(iring1)
-
-        # Assert that iring1 indicies are ordered
-        last_index = iring1[0].index
-        for i, ip in enumerate(iring1):
-            if ip.index < last_index:
-                ip.index = last_index
-            last_index = ip.index
-
-        # If the iring indicies rotate back around to zero, things get complicated, so lets take those values and add the length of ring0 to them
-        for i in range(1, len(iring1)):
-            if iring1[i].index < iring1[i - 1].index:
-                iring1[i].index += len(ring0)
+            # If the iring indicies rotate back around to zero, things get complicated, so lets take those values and add the length of ring0 to them
+            for i in range(1, len(iring1)):
+                if iring1[i].index < iring1[i - 1].index:
+                    iring1[i].index += len(ring0)
+            
+            if iring1 == initial_iring1:
+                break
+            else:
+                initial_iring1 = iring1[:]
 
         i0 = 0
         i1 = 0
@@ -450,32 +471,63 @@ def rings_to_polyhedron(rings, progress_stdout=False):
                 if i0 > r1i_a.index or i0 >= len(ring0):
                     side = True
 
-    def triangulate_layer(layer, order=1):
-        z = layer[0].z
-
-        points = [(p.x, p.y) for p in layer]
-
-        tris = polytri.triangulate(points)
-
-        for triangle in tris:
-            pb.triangle(*[Vec3(p[0], p[1], z) for p in triangle][::order])
-
-    triangulate_layer(rings[0])
-    triangulate_layer(rings[-1], order=-1)
+    triangulate_layer(pb, rings[0])
+    triangulate_layer(pb, rings[-1], order=-1)
 
     return pb.build()
 
+def similar_rings_to_polyhedron(rings, progress_stdout=True):
+    pb = PolyhedronBuilder()
+
+
+
+    it = enumerate(rings)
+    if progress_stdout:
+        it = tqdm(it, total=len(rings))
+    for ri, ring0 in it:
+        if ri == len(rings) - 1:
+            break
+
+        ring1 = rings[ri + 1]
+
+        # Rotate ring 1
+        ring1 = deque(ring1)
+        closest_index, closest_point = min(enumerate(ring1), key=lambda ip: ip[1].distance2(ring0[0]))
+        ring1.rotate(-closest_index)
+
+        ring1 = list(ring1)
+
+        rings[ri + 1] = ring1
+
+        if len(ring1) != len(ring0):
+            raise Exception("Rings not same length")
+
+        for i in range(0, len(ring0)):
+            r0a = ring0[i]
+            r0b = ring0[(i+1) % len(ring0)]
+            r1a = ring1[i]
+            r1b = ring1[(i+1) % len(ring1)]
+
+            pb.triangle(r0a, r1a, r0b)
+            pb.triangle(r1a, r1b, r0b)
+    
+    triangulate_layer(pb, rings[0])
+    triangulate_layer(pb, rings[-1], order=-1)
+    
+    return pb.build()
 
 class PolyhedronBuilder:
     def __init__(self):
+        self.point_index = {}
         self.points = []
         self.triangles = []
 
     def add_point(self, v):
         p = (v.x, v.y, v.z)
-        if p not in self.points:
+        if p not in self.point_index:
+            self.point_index[p] = len(self.points)
             self.points.append(p)
-        return self.points.index(p)
+        return self.point_index[p]
 
     def triangle(self, v0, v1, v2):
         i0 = self.add_point(v0)
