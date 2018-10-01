@@ -24,7 +24,7 @@ df.init_circle()
 
 layers = []
 points_per_layer = 300
-height = 300
+height = 100
 flip = False
 
 print("Running Simulation")
@@ -135,12 +135,39 @@ def normalize_stack(layers, num_points):
     for layer in enumerate(layers[1:]):
         pass
 
+def insert_points_in_long_sections(layer, max_length=5.0):
+    out = []
+    for i, p in enumerate(layer):
+        out.append(p)
+        next_point = layer[(i+1)%len(layer)]
+        vec = next_point - p
+        dist = vec.length()
+        usable_dist = dist - 1
+        if usable_dist > max_length:
+            # Normalize
+            vec /= dist
+            vec *= max_length
+            for _ in range(int(usable_dist / max_length)):
+                out.append(out[-1] + vec)
+    return out
+
 shrink_amount = 3
+
+print("Smoothing")
+# layers = [normalize_points_on_layer(layer, len(layer)*2) for layer in layers]
 
 print("Resizing")
 og_layers = layers
 layers = [shrink_layer(layer, -5) for layer in og_layers]
 shrunk_layers = [shrink_layer(layer, 0) for layer in og_layers]
+
+print("Filling long spans")
+layers = [insert_points_in_long_sections(layer) for layer in layers]
+shrunk_layers = [insert_points_in_long_sections(layer) for layer in shrunk_layers]
+
+# for layer in layers:
+#     for p in layer:
+#         parts.append(translate(p.to_list())(cube([1,1,1])))
 
 print("Normalizing")
 layers = [normalize_points_on_layer(layer) for layer in layers]
@@ -150,10 +177,11 @@ shrunk_layers = [normalize_points_on_layer(layer) for layer in shrunk_layers]
 #shrunk_layers = sample_closest_points(shrunk_layers, 300)
 
 print( "Triangulating" )
+# outer = rings_to_polyhedron(layers, progress_stdout=True)
 outer = similar_rings_to_polyhedron(layers[:-1], progress_stdout=True)
 inner = similar_rings_to_polyhedron(shrunk_layers[1:], progress_stdout=True)
 
-# parts.append( outer )
+#parts.append( outer )
 #parts.append( inner )
 parts.append(outer - inner)
 

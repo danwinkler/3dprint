@@ -479,8 +479,6 @@ def rings_to_polyhedron(rings, progress_stdout=False):
 def similar_rings_to_polyhedron(rings, progress_stdout=True):
     pb = PolyhedronBuilder()
 
-
-
     it = enumerate(rings)
     if progress_stdout:
         it = tqdm(it, total=len(rings))
