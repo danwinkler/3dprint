@@ -24,14 +24,14 @@ df.init_circle()
 
 layers = []
 points_per_layer = 300
-height = 100
+height = 50
 flip = False
 
 print("Running Simulation")
 for i in tqdm(range(height)):
     df.update()
 
-    if i % 2 == 0:
+    if i % 5 == 0:
         layer = []
         for n in df.nodes:
             nd = NodeData(n)
@@ -39,7 +39,7 @@ for i in tqdm(range(height)):
                 nd.pos.z = height - i
             else:
                 nd.pos.z = i
-            layer.append(nd.pos)
+            layer.append(nd)
         layers.append(layer)
 
 parts = []
@@ -66,7 +66,7 @@ def shrink_layer(layer, offset):
     pco = pyclipper.PyclipperOffset()
     pco.AddPath(
         [(p.x, p.y) for p in layer],
-        pyclipper.JT_MITER,
+        pyclipper.JT_SQUARE,
         pyclipper.ET_CLOSEDPOLYGON
     )
 
@@ -153,13 +153,16 @@ def insert_points_in_long_sections(layer, max_length=5.0):
 
 shrink_amount = 3
 
+# Convert to just pos
+layers = [[nd.pos for nd in layer] for layer in layers]
+
 print("Smoothing")
 # layers = [normalize_points_on_layer(layer, len(layer)*2) for layer in layers]
 
 print("Resizing")
 og_layers = layers
-layers = [shrink_layer(layer, -5) for layer in og_layers]
-shrunk_layers = [shrink_layer(layer, 0) for layer in og_layers]
+layers = [shrink_layer(layer, 0) for layer in og_layers]
+shrunk_layers = [shrink_layer(layer, 5) for layer in og_layers]
 
 print("Filling long spans")
 layers = [insert_points_in_long_sections(layer) for layer in layers]
@@ -177,7 +180,8 @@ shrunk_layers = [normalize_points_on_layer(layer) for layer in shrunk_layers]
 #shrunk_layers = sample_closest_points(shrunk_layers, 300)
 
 print( "Triangulating" )
-# outer = rings_to_polyhedron(layers, progress_stdout=True)
+#outer = rings_to_polyhedron(layers[:-1], progress_stdout=True)
+#inner = rings_to_polyhedron(shrunk_layers[1:], progress_stdout=True)
 outer = similar_rings_to_polyhedron(layers[:-1], progress_stdout=True)
 inner = similar_rings_to_polyhedron(shrunk_layers[1:], progress_stdout=True)
 

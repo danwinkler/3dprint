@@ -425,7 +425,12 @@ def rings_to_polyhedron(rings, progress_stdout=False):
             last_index = iring1[0].index
             for i, ip in enumerate(iring1):
                 if ip.index < last_index:
+                    # Out of order index, see if previous or next point is closer
+                    prev_dist = ip.point.distance2(ring0[last_index%len(ring0)])
+                    next_dist = ip.point.distance2(ring0[(last_index+1)%len(ring0)])
                     ip.index = last_index
+                    if next_dist < prev_dist:
+                        ip.index += 1
                 last_index = ip.index
 
             # If the iring indicies rotate back around to zero, things get complicated, so lets take those values and add the length of ring0 to them
