@@ -28,14 +28,14 @@ df.init_circle()
 
 layers = []
 points_per_layer = 300
-height = 100
+height = 200
 flip = False
 
 print("Running Simulation")
 for i in tqdm(range(height)):
     df.update()
 
-    if i % 10 == 0:
+    if i % 20 == 0:
         layer = []
         for n in df.nodes:
             nd = NodeData(n)
@@ -68,6 +68,21 @@ def shrink_layer(layer, offset):
     path = max(solution, key=lambda d: len(d))
 
     return [Vec3(p[0], p[1], z) for p in path]
+
+def rotate_layers(layers):
+    ret_layers = []
+    for layer_index, layer in tqdm(enumerate(layers), total=len(layers)):
+        if layer_index > 0:
+            previous_layer = ret_layers[layer_index-1]
+
+            # Rotate layer
+            layer = deque(layer)
+            closest_index, closest_point = min(enumerate(layer), key=lambda ip: ip[1].distance(previous_layer[0]))
+            layer.rotate(-closest_index)
+            layer = list(layer)
+
+        ret_layers.append(layer)
+    return ret_layers
 
 def insert_points_in_long_sections(layer, max_length=1.0):
     out = []
@@ -179,11 +194,13 @@ def build(layers):
 
 parts = []
 
-#layers, inner_layers = inner_layers, layers
+# inner_layers = [shrink_layer(layer, 5) for layer in layers]
+# inner_layers = [insert_points_in_long_sections(layer) for layer in layers]
+# inner_layers = rotate_layers(inner_layers)
 
 #parts.append(build(inner_layers))
-parts.append(build(layers))
-#parts.append(build(layers[1:]) - build(inner_layers[:-1]))
+parts.append(build(layers[-5:]))
+#parts.append(build(layers[:-1]) - build(inner_layers[1:]))
 
 print("Saving File")
 with open(__file__ + ".scad", "w") as f:

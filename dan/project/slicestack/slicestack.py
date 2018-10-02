@@ -24,14 +24,14 @@ df.init_circle()
 
 layers = []
 points_per_layer = 300
-height = 50
+height = 200
 flip = False
 
 print("Running Simulation")
 for i in tqdm(range(height)):
     df.update()
 
-    if i % 5 == 0:
+    if i % 20 == 0:
         layer = []
         for n in df.nodes:
             nd = NodeData(n)

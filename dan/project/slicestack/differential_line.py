@@ -5,6 +5,7 @@ from dan.lib.helper import Vec3
 
 _node_id = 0
 
+# TODO: nested rings?
 
 class NodeData:
     def __init__(self, node):
