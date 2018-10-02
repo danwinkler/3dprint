@@ -1,5 +1,5 @@
 import random
-from collections import namedtuple, deque
+from collections import namedtuple, deque, defaultdict
 
 from solid import *
 from solid.utils import *
@@ -520,10 +520,14 @@ def similar_rings_to_polyhedron(rings, progress_stdout=True):
     return pb.build()
 
 class PolyhedronBuilder:
-    def __init__(self):
+    def __init__(self, build_graph=False):
         self.point_index = {}
         self.points = []
         self.triangles = []
+
+        self.build_graph = build_graph
+        if build_graph:
+            self.adjacent = defaultdict(set)
 
     def add_point(self, v):
         p = (v.x, v.y, v.z)
@@ -536,6 +540,16 @@ class PolyhedronBuilder:
         i0 = self.add_point(v0)
         i1 = self.add_point(v1)
         i2 = self.add_point(v2)
+
+        if self.build_graph:
+            self.adjacent[i0].add(i1)
+            self.adjacent[i0].add(i2)
+
+            self.adjacent[i1].add(i0)
+            self.adjacent[i1].add(i2)
+
+            self.adjacent[i2].add(i1)
+            self.adjacent[i2].add(i0)
 
         self.triangles.append((i0, i1, i2))
 

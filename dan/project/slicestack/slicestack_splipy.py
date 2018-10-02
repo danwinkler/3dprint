@@ -28,14 +28,14 @@ df.init_circle()
 
 layers = []
 points_per_layer = 300
-height = 20
+height = 100
 flip = False
 
 print("Running Simulation")
 for i in tqdm(range(height)):
     df.update()
 
-    if i % 5 == 0:
+    if i % 10 == 0:
         layer = []
         for n in df.nodes:
             nd = NodeData(n)
@@ -120,28 +120,62 @@ class FakeSTLWriter:
             self.pb.triangle(p3, p4, p1)
 
 
+def build_surface(pb, starting_point_fn, num_adjacent_on_edge, order=1):
+    starting_index, starting_point = max(enumerate(pb.points), key=lambda ip: starting_point_fn(ip[1]))
+
+    points = [starting_point]
+    seen = {starting_index:True}
+    last_index = starting_index
+    while True:
+        for next_point in pb.adjacent[last_index]:
+            if next_point not in seen:
+                if len(pb.adjacent[next_point]) <= num_adjacent_on_edge:
+                    points.append(pb.points[next_point])
+                    seen[next_point] = True
+                    last_index = next_point
+                    break
+        else:
+            break
+    
+    triangulate_layer(pb, [Vec3(*point) for point in points], order)
+
+
+
 def build(layers):
     zs = [p.z for layer in layers for p in layer]
     minz = min(zs)
     maxz = max(zs)
+
+    print("Create curves")
     curves = [convert_to_curve(layer) for layer in layers]
+
+    #curves = [curve.lower_order(1) for curve in curves]
 
     # plot_3D_curves(curves)
 
+    print("Loft Curves")
     surface = surface_factory.loft(*curves)
 
-    volume = volume_factory.edge_surfaces(surface_factory.cylinder(r=1, h=maxz-minz).translate([0, 0, minz]), surface)
+    #surface = surface.lower_order(1)
 
-    pb = PolyhedronBuilder()
+    #volume = volume_factory.edge_surfaces(surface_factory.cylinder(r=1, h=maxz-minz).translate([0, 0, minz]), surface)
+
+    pb = PolyhedronBuilder(build_graph=True)
 
     stl_writer = STL(".stl")
     stl_writer.writer = FakeSTLWriter(pb)
 
-    stl_writer.write(volume)
+    #stl_writer.write(volume)
+    print("Write Surface")
     stl_writer.write(surface)
 
-    return pb.build()
+    print("Triangulate bottom")
+    build_surface(pb, lambda p: -p[2], 5)
+    print("Triangulate top")
+    build_surface(pb, lambda p: p[2], 5, -1)
 
+    print("Build openscad")
+    return pb.build()
 
 parts = []
 
