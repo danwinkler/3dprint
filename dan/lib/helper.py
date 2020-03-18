@@ -30,6 +30,14 @@ class Vec3:
     def length2(self):
         return self.x * self.x + self.y * self.y + self.z * self.z
 
+    def lerp(self, b, t):
+        v = Vec3(b)
+        v -= self
+        v *= t
+        v += self
+
+        return v
+
     def to_list(self):
         return [self.x, self.y, self.z]
 
@@ -70,6 +78,11 @@ class Vec3:
         cross_y = self.z * v.x - v.z * self.x
         cross_z = self.x * v.y - v.x * self.y
         return Vec3(cross_x, cross_y, cross_z)
+
+    def round(self, ndigits=None):
+        self.x = round(self.x, ndigits)
+        self.y = round(self.y, ndigits)
+        self.z = round(self.z, ndigits)
 
     def __add__(self, other):
         if isinstance(other, (list, tuple)):
@@ -128,7 +141,37 @@ class Vec3:
 
     def __repr__(self):
         return "({}, {}, {})".format(*self.to_list())
+    
+    def __hash__(self):
+        return hash((self.x, self.y, self.z))
+    
+    def __eq__(self, other):
+        return isinstance(other, Vec3) and self.x == other.x and self.y == other.y and self.z == other.z
 
+
+class Line:
+    def __init__(self, a, b):
+        if b.x < a.x or (b.x == a.x and b.y < a.y):
+            self.a, self.b = b, a
+        else:
+            self.a, self.b = a, b
+    
+    def __hash__(self):
+        return hash(self.a) ^ hash(self.b)
+    
+    def __eq__(self, other):
+        return isinstance(other, Line) and self.a == other.a and self.b == other.b
+
+    def __repr__(self):
+        return "({}, {})".format(self.a, self.b)
+    
+    def other(self, p):
+        if self.p == self.a:
+            return self.b
+        elif self.p == self.b:
+            return self.a
+        else:
+            raise Exception()
 
 # Find distance from point p to line segment
 def point_to_line_segment(p, l0, l1):

@@ -31,3 +31,6 @@ class ConvolutionSurface(object):
             f.write(json.dumps(data))
 
         subprocess.run(["java", "-jar", "dan/lib/convsurfapp.jar", filename])
+    
+    def render_python(self):
+        pass

@@ -53,23 +53,35 @@ for li, layer in enumerate(layers):
 def get_node_index_from_layer(layer, node_id):
     return [i for i, n in enumerate(layer) if n.id == node_id][0]
 
-last_node = None
-for i in range(3):
+def build_angled_line(start_index, direction, angle):
+    last_node = None
+    last_pos = None
     for li, layer in enumerate(layers):
         layer = layer[0]
         if last_node is None:
-            last_node = random.choice(layer)
+            last_node = layer[start_index]
+            last_pos = last_node.pos
         else:
             node_index = get_node_index_from_layer(layer, last_node.id)
-            node = layer[(node_index + random.randint(-1, 1) + len(layer)) % len(layer)]
+            next_node_index = (node_index + direction + len(layer)) % len(layer)
+
+            node = layer[node_index]
+            next_node = layer[next_node_index]
+
+            lerp_amount = float(li % angle) / angle
+
+            pos = node.pos.lerp(next_node.pos, lerp_amount)
+
             surface.add_line(
-                last_node.pos.to_list(),
-                node.pos.to_list(),
+                last_pos.to_list(),
+                pos.to_list(),
                 1.8
             )
-            last_node = node
+            last_pos = pos
+            last_node = next_node if li % angle == 0 else node
 
-    last_node = None
+for i in range(len(layers[0][0])):
+    build_angled_line(i, 1 if i % 2 == 0 else -1, 3)
 
 """
 for li, layer in enumerate(layers[:10]):
