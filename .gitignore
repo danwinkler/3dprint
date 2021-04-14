@@ -217,5 +217,8 @@ pip-log.txt
 .idea
 
 venv
+.venv
+
+__pycache__
 
 *.pickle

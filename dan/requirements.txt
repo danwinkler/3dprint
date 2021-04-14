@@ -1,0 +1,4 @@
+solidpython
+
+black
+pylint
