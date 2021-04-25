@@ -5,7 +5,7 @@ from solid import *
 from solid.utils import *
 from tqdm import tqdm
 
-from dan.lib import polytri
+from . import polytri
 
 in_to_mm = 25.4
 
@@ -141,12 +141,17 @@ class Vec3:
 
     def __repr__(self):
         return "({}, {}, {})".format(*self.to_list())
-    
+
     def __hash__(self):
         return hash((self.x, self.y, self.z))
-    
+
     def __eq__(self, other):
-        return isinstance(other, Vec3) and self.x == other.x and self.y == other.y and self.z == other.z
+        return (
+            isinstance(other, Vec3)
+            and self.x == other.x
+            and self.y == other.y
+            and self.z == other.z
+        )
 
 
 class Line:
@@ -155,16 +160,16 @@ class Line:
             self.a, self.b = b, a
         else:
             self.a, self.b = a, b
-    
+
     def __hash__(self):
         return hash(self.a) ^ hash(self.b)
-    
+
     def __eq__(self, other):
         return isinstance(other, Line) and self.a == other.a and self.b == other.b
 
     def __repr__(self):
         return "({}, {})".format(self.a, self.b)
-    
+
     def other(self, p):
         if self.p == self.a:
             return self.b
@@ -172,6 +177,7 @@ class Line:
             return self.a
         else:
             raise Exception()
+
 
 # Find distance from point p to line segment
 def point_to_line_segment(p, l0, l1):
@@ -375,6 +381,7 @@ def in_inches(fn):
 
     return wrapper
 
+
 def triangulate_layer(pb, layer, order=1):
     try:
         z = layer[0].z
@@ -388,10 +395,12 @@ def triangulate_layer(pb, layer, order=1):
     except ValueError as e:
         print(e)
 
+
 class IndexedPoint:
     def __init__(self, point, index):
         self.point = point
         self.index = index
+
 
 def rings_to_polyhedron(rings, progress_stdout=False):
     """
@@ -449,17 +458,21 @@ def rings_to_polyhedron(rings, progress_stdout=False):
         iring1 = []
         for p1 in ring1:
             min_index, min_point = min(
-                enumerate(ring0), key=lambda p: Vec3(p[1].x, p[1].y).distance2(Vec3(p1.x, p1.y))
+                enumerate(ring0),
+                key=lambda p: Vec3(p[1].x, p[1].y).distance2(Vec3(p1.x, p1.y)),
             )
             iring1.append(IndexedPoint(p1, min_index))
-        
+
         initial_iring1 = iring1[:]
         while True:
             # Rotate list
             iring1 = deque(iring1)
             min_value = min(iring1, key=lambda i: i.index)
             # TODO: we can probably do this in one rotate
-            while iring1[0].index != min_value.index or iring1[-1].index == min_value.index:
+            while (
+                iring1[0].index != min_value.index
+                or iring1[-1].index == min_value.index
+            ):
                 iring1.rotate(1)
 
             iring1 = list(iring1)
@@ -469,8 +482,8 @@ def rings_to_polyhedron(rings, progress_stdout=False):
             for i, ip in enumerate(iring1):
                 if ip.index < last_index:
                     # Out of order index, see if previous or next point is closer
-                    prev_dist = ip.point.distance2(ring0[last_index%len(ring0)])
-                    next_dist = ip.point.distance2(ring0[(last_index+1)%len(ring0)])
+                    prev_dist = ip.point.distance2(ring0[last_index % len(ring0)])
+                    next_dist = ip.point.distance2(ring0[(last_index + 1) % len(ring0)])
                     ip.index = last_index
                     if next_dist < prev_dist:
                         ip.index += 1
@@ -480,7 +493,7 @@ def rings_to_polyhedron(rings, progress_stdout=False):
             for i in range(1, len(iring1)):
                 if iring1[i].index < iring1[i - 1].index:
                     iring1[i].index += len(ring0)
-            
+
             if iring1 == initial_iring1:
                 break
             else:
@@ -524,6 +537,7 @@ def rings_to_polyhedron(rings, progress_stdout=False):
 
     return pb.build()
 
+
 def similar_rings_to_polyhedron(rings, progress_stdout=True):
     pb = PolyhedronBuilder()
 
@@ -538,7 +552,9 @@ def similar_rings_to_polyhedron(rings, progress_stdout=True):
 
         # Rotate ring 1
         ring1 = deque(ring1)
-        closest_index, closest_point = min(enumerate(ring1), key=lambda ip: ip[1].distance2(ring0[0]))
+        closest_index, closest_point = min(
+            enumerate(ring1), key=lambda ip: ip[1].distance2(ring0[0])
+        )
         ring1.rotate(-closest_index)
 
         ring1 = list(ring1)
@@ -550,17 +566,18 @@ def similar_rings_to_polyhedron(rings, progress_stdout=True):
 
         for i in range(0, len(ring0)):
             r0a = ring0[i]
-            r0b = ring0[(i+1) % len(ring0)]
+            r0b = ring0[(i + 1) % len(ring0)]
             r1a = ring1[i]
-            r1b = ring1[(i+1) % len(ring1)]
+            r1b = ring1[(i + 1) % len(ring1)]
 
             pb.triangle(r0a, r1a, r0b)
             pb.triangle(r1a, r1b, r0b)
-    
+
     triangulate_layer(pb, rings[0])
     triangulate_layer(pb, rings[-1], order=-1)
-    
+
     return pb.build()
+
 
 class PolyhedronBuilder:
     def __init__(self, build_graph=False):
