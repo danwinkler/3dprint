@@ -29,6 +29,7 @@ class Planter:
     rad: float
     depth: float  # Inner depth from back to front
     z_offset: float  # Distance from inner bottom to top of lip
+    cyl_bevel: float = 0  # Cylinder bevel
 
 
 a_planter = Planter(
@@ -41,7 +42,10 @@ c_planter = Planter(
     rad=14.875 * 0.5 * in_to_mm, depth=2.5 * in_to_mm, z_offset=6 * in_to_mm
 )
 d_planter = Planter(
-    rad=18.875 * 0.5 * in_to_mm, depth=3.375 * in_to_mm, z_offset=7.75 * in_to_mm
+    rad=18.875 * 0.5 * in_to_mm,
+    depth=3.375 * in_to_mm,
+    z_offset=7.75 * in_to_mm,
+    cyl_bevel=15,
 )
 
 
@@ -57,17 +61,30 @@ wall_thickness = 2
 hole_size = 10
 
 
+def get_cylinder(rad, depth, bevel):
+    return up(rad)(
+        rotate(v=[1, 0, 0], a=-90)(
+            minkowski()(
+                up(bevel)(
+                    cylinder(
+                        r=rad - bevel,
+                        h=depth - (bevel * 2),
+                        segments=segments,
+                    )
+                ),
+                sphere(r=bevel),
+            )
+        )
+    )
+
+
 def left_box(planter: Planter, x_offset, pot_depth):
     left_edge_bottom = (
         math.cos(math.asin(1 - ((planter.z_offset - pot_depth) / planter.rad)))
         * planter.rad
     )
 
-    cyl = up(planter.rad)(
-        rotate(v=[1, 0, 0], a=-90)(
-            cylinder(r=planter.rad, h=planter.depth, segments=segments)
-        )
-    )
+    cyl = get_cylinder(planter.rad, planter.depth, planter.cyl_bevel)
 
     front = intersection()(
         translate([-planter.rad, 0, planter.z_offset - pot_depth])(
@@ -87,10 +104,12 @@ def left_box(planter: Planter, x_offset, pot_depth):
     )
     left = intersection()(
         cyl
-        - up(planter.rad)(
-            rotate(v=[1, 0, 0], a=-90)(
-                cylinder(
-                    r=planter.rad - wall_thickness, h=planter.depth, segments=segments
+        - up(wall_thickness)(
+            forward(wall_thickness)(
+                get_cylinder(
+                    planter.rad - wall_thickness,
+                    planter.depth - wall_thickness * 2,
+                    planter.cyl_bevel - wall_thickness,
                 )
             )
         ),
@@ -135,11 +154,7 @@ def left_box(planter: Planter, x_offset, pot_depth):
 
 def support(planter, pot_depth):
     z_offset = planter.z_offset - pot_depth
-    cyl = up(planter.rad)(
-        rotate(v=[1, 0, 0], a=-90)(
-            cylinder(r=planter.rad, h=planter.depth, segments=segments)
-        )
-    )
+    cyl = get_cylinder(planter.rad, planter.depth, planter.cyl_bevel)
 
     solid = intersection()(
         translate([-planter.rad, 0, 0])(cube([planter.rad, planter.depth, z_offset])),
@@ -161,20 +176,20 @@ def support(planter, pot_depth):
 
 parts = []
 
-# parts.append(
-#     left_box(
-#         d_planter,
-#         x_offset=-0,
-#         pot_depth=pot_depth,
-#     )
-# )
-
 parts.append(
-    support(
+    left_box(
         d_planter,
+        x_offset=-0,
         pot_depth=pot_depth,
     )
 )
+
+# parts.append(
+#     support(
+#         d_planter,
+#         pot_depth=pot_depth,
+#     )
+# )
 
 
 print("Saving File")

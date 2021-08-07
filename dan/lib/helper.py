@@ -1,4 +1,6 @@
 import random
+import math
+import itertools
 from collections import namedtuple, deque, defaultdict
 
 from solid import *
@@ -615,3 +617,14 @@ class PolyhedronBuilder:
 
     def build(self):
         return polyhedron(points=self.points, faces=self.triangles)
+
+
+def pairwise(iterable):
+    """
+    s -> (s0,s1), (s1,s2), (s2, s3), ...
+
+    https://stackoverflow.com/questions/5434891/iterate-a-list-as-pair-current-next-in-python
+    """
+    a, b = itertools.tee(iterable)
+    next(b, None)
+    return zip(a, b)
