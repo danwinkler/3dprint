@@ -7,7 +7,7 @@ from solid import *
 from solid.utils import *
 from tqdm import tqdm
 
-from . import polytri
+from lib import polytri
 
 in_to_mm = 25.4
 
