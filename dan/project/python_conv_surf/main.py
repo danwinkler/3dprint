@@ -13,6 +13,8 @@ from scipy.spatial import Voronoi
 
 from .cuda_conv import cuda_calculate_field
 
+from . import voronoi3d
+
 
 def generate_field(minx, miny, minz, maxx, maxy, maxz, resolution):
     # The following code generates a 2d array: (x*y*z, 3), where the last dimension is the xyz coord
@@ -59,10 +61,20 @@ if __name__ == "__main__":
     #             ],
     #         ]
 
+    triangles = []
+    triangles += [
+        [
+            [5, 5, -3],
+            [5, 5, 3],
+            [math.nan, math.nan, math.nan],
+            [2, 0, 0],
+        ],
+    ]
+
     # triangles += [
     #     [
-    #         [5, 5, -3],
-    #         [5, 5, 3],
+    #         [-5, 5, -3],
+    #         [-5, 5, 3],
     #         [math.nan, math.nan, math.nan],
     #         [2, 0, 0],
     #     ],
@@ -106,21 +118,22 @@ if __name__ == "__main__":
     #     for i in range(len(p) - 2):
     #         triangles.append([p[0], p[i + 1], p[i + 2], [s, 0.0, 0.0]])
 
-    from . import voronoi3d
+    # from . import voronoi3d
 
-    triangles = []
-    s = 2
-    for ridge in voronoi3d.ridge_list:
-        triangles.append(
-            [
-                ridge.p0.p.to_list(),
-                ridge.p1.p.to_list(),
-                [math.nan, math.nan, math.nan],
-                [s, 0.0, 0.0],
-            ]
-        )
+    # triangles = []
+    # s = 2
+    # for ridge in voronoi3d.ridge_list:
+    #     triangles.append(
+    #         [
+    #             ridge.p0.p.to_list(),
+    #             ridge.p1.p.to_list(),
+    #             [math.nan, math.nan, math.nan],
+    #             [s, 0.0, 0.0],
+    #         ]
+    #     )
 
     triangles = np.array(triangles)
+    print(triangles)
 
     assert triangles.dtype == np.float64
     assert field.dtype == np.float64

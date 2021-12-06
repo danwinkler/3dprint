@@ -2,6 +2,7 @@ import random
 import math
 import itertools
 from collections import namedtuple, deque, defaultdict
+from numpy import number
 
 from solid import *
 from solid.utils import *
@@ -97,9 +98,12 @@ class Vec3:
         return Vec3(self.x - other.x, self.y - other.y, self.z - other.z)
 
     def __mul__(self, other):
-        if isinstance(other, (list, tuple)):
+        if isinstance(other, number):
+            return Vec3(self.x * other, self.y * other, self.z * other)
+        elif isinstance(other, (list, tuple)):
             other = Vec3(*other)
-        return Vec3(self.x * other, self.y * other, self.z * other)
+
+        return Vec3(self.x * other.x, self.y * other.y, self.z * other.z)
 
     def __iadd__(self, other):
         if isinstance(other, (list, tuple)):
