@@ -1,7 +1,4 @@
 import math
-import random
-import functools
-from dataclasses import dataclass
 
 from solid import *
 from solid.utils import *
@@ -40,10 +37,6 @@ def basic_shape():
     angle_rads = math.radians(angle)
     num_points = 13
     angle_per_point = angle_rads / num_points
-    total_distance = angle_rads * hook_radius
-    curved_tip_start = math.ceil(
-        num_points - (hook_thickness / total_distance) * num_points
-    )
     angles = [angle_per_point * i for i in range(num_points)]
 
     points = [
@@ -54,8 +47,6 @@ def basic_shape():
         )
         for a in angles
     ]
-
-    # points = points[5:]
 
     hook_s = 1.5
     for a, b in pairwise(points):
@@ -70,34 +61,7 @@ def basic_shape():
             s=hook_s,
         )
 
-    # import random
-
-    # for i in range(5):
-    #     surf.add_triangle(
-    #         [random.uniform(0, 40), random.uniform(0, 40), random.uniform(0, 40)],
-    #         [random.uniform(0, 40), random.uniform(0, 40), random.uniform(0, 40)],
-    #         [random.uniform(0, 40), random.uniform(0, 40), random.uniform(0, 40)],
-    #         s=3,
-    #     )
-    #     # surf.add_line(
-    #     #     [random.uniform(10, 50), random.uniform(10, 50), random.uniform(10, 50)],
-    #     #     [random.uniform(10, 50), random.uniform(10, 50), random.uniform(10, 50)],
-    #     #     s=2,
-    #     # )
-    #     surf.add_line(
-    #         [0, 0, 0],
-    #         [0, 0, 50],
-    #         s=1,
-    #     )
-
-    # Something is wrong with the auto field setting, causing all kinds of crazy results
-    surf.minx = -30.0
-    surf.miny = -30.0
-    surf.minz = -10.0
-    surf.maxx = 30.0
-    surf.maxy = 30.0
-    surf.maxz = 50.0
-    vertices, triangles = surf.generate(isovalue=0.005)
+    vertices, triangles = surf.generate()
     print(f"num vertices: {len(vertices)}")
     return polyhedron(points=vertices, faces=triangles)
 

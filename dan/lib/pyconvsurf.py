@@ -208,10 +208,10 @@ def round_up(x, divisor):
 
 
 def generate_field(minx, miny, minz, maxx, maxy, maxz, resolution):
-    # The following code generates a 2d array: (x*y*z, 3), where the last dimension is the xyz coord
     x = np.arange(minx, maxx, resolution)
     y = np.arange(miny, maxy, resolution)
     z = np.arange(minz, maxz, resolution)
+
     meshgrid = np.meshgrid(x, y, z)
     return np.vstack(meshgrid).reshape(3, -1).T, x.shape[0], y.shape[0], z.shape[0]
 
@@ -232,12 +232,12 @@ class ConvSurf:
         p0 = [float(p0[0]), float(p0[1]), float(p0[2])]
         p1 = [float(p1[0]), float(p1[1]), float(p1[2])]
         s = float(s)
-        self.minx = min(self.minx, p0[0] - self.margin, p1[0] - self.margin)
-        self.miny = min(self.miny, p0[1] - self.margin, p1[1] - self.margin)
-        self.minz = min(self.minz, p0[2] - self.margin, p1[2] - self.margin)
-        self.maxx = max(self.maxx, p0[0] + self.margin, p1[0] + self.margin)
-        self.maxy = max(self.maxy, p0[1] + self.margin, p1[1] + self.margin)
-        self.maxz = max(self.maxz, p0[2] + self.margin, p1[2] + self.margin)
+        self.minx = min(self.minx, p0[0], p1[0])
+        self.miny = min(self.miny, p0[1], p1[1])
+        self.minz = min(self.minz, p0[2], p1[2])
+        self.maxx = max(self.maxx, p0[0], p1[0])
+        self.maxy = max(self.maxy, p0[1], p1[1])
+        self.maxz = max(self.maxz, p0[2], p1[2])
         self.triangles.append([p0, p1, [math.nan, math.nan, math.nan], [s, 0.0, 0.0]])
 
     def add_triangle(self, p0, p1, p2, s=2):
@@ -245,37 +245,24 @@ class ConvSurf:
         p1 = [float(p1[0]), float(p1[1]), float(p1[2])]
         p2 = [float(p2[0]), float(p2[1]), float(p2[2])]
         s = float(s)
-        self.minx = min(
-            self.minx, p0[0] - self.margin, p1[0] - self.margin, p2[0] - self.margin
-        )
-        self.miny = min(
-            self.miny, p0[1] - self.margin, p1[1] - self.margin, p2[1] - self.margin
-        )
-        self.minz = min(
-            self.minz, p0[2] - self.margin, p1[2] - self.margin, p2[2] - self.margin
-        )
-        self.maxx = max(
-            self.maxx, p0[0] + self.margin, p1[0] + self.margin, p2[0] + self.margin
-        )
-        self.maxy = max(
-            self.maxy, p0[1] + self.margin, p1[1] + self.margin, p2[1] + self.margin
-        )
-        self.maxz = max(
-            self.maxz, p0[2] + self.margin, p1[2] + self.margin, p2[2] + self.margin
-        )
+        self.minx = min(self.minx, p0[0], p1[0], p2[0])
+        self.miny = min(self.miny, p0[1], p1[1], p2[1])
+        self.minz = min(self.minz, p0[2], p1[2], p2[2])
+        self.maxx = max(self.maxx, p0[0], p1[0], p2[0])
+        self.maxy = max(self.maxy, p0[1], p1[1], p2[1])
+        self.maxz = max(self.maxz, p0[2], p1[2], p2[2])
         self.triangles.append([p0, p1, p2, [s, 0.0, 0.0]])
 
-    def generate(self, flip_winding=True, isovalue=0.005):
+    def generate(self, flip_winding=False, isovalue=0.005):
         # TODO: this currently doesn't work, the field is not generated correctly unless min and max are set by user before calling generate
-        """
         # Maybe try something like
-        minx = round_down(minx, resolution)
-        miny = round_down(miny, resolution)
-        minz = round_down(minz, resolution)
-        maxx = round_up(maxx, resolution)
-        maxy = round_up(maxy, resolution)
-        maxz = round_up(maxz, resolution)
-        """
+        self.minx = round_down(self.minx - self.margin, self.resolution)
+        self.miny = round_down(self.miny - self.margin, self.resolution)
+        self.minz = round_down(self.minz - self.margin, self.resolution)
+        self.maxx = round_up(self.maxx + self.margin, self.resolution)
+        self.maxy = round_up(self.maxy + self.margin, self.resolution)
+        self.maxz = round_up(self.maxz + self.margin, self.resolution)
+
         field, width, height, depth = generate_field(
             self.minx,
             self.miny,
@@ -293,14 +280,17 @@ class ConvSurf:
 
         field = cuda_calculate_field(field, np_triangles)
 
+        # Marching cubes has a different assumption about the shape of the field,
+        # and I don't totally understand the details here
         vertices, triangles = mcubes.marching_cubes(
-            field.reshape(width, height, depth), isovalue
+            field.reshape(height, width, depth), isovalue
         )
 
+        # Note the switched x and y from the output of marching cubes
         vertices = [
             [
-                v[0] * self.resolution + self.minx,
-                v[1] * self.resolution + self.miny,
+                v[1] * self.resolution + self.minx,
+                v[0] * self.resolution + self.miny,
                 v[2] * self.resolution + self.minz,
             ]
             for v in vertices
