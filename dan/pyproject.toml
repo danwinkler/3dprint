@@ -7,7 +7,7 @@ authors = ["Daniel Winkler <dan@danwink.com>"]
 [tool.poetry.dependencies]
 python = "~3.9"
 plumbum = "~1.7.0"
-numpy = "~1.20.2"
+numpy = "~1.22.0"
 numba = "*"
 solidpython = {git = "https://github.com/danwinkler/SolidPython"}
 PyMCubes = "~0.1.2"
