@@ -220,7 +220,7 @@ class ConvSurf:
     def __init__(self, margin, resolution):
         self.triangles = []
         self.margin = margin
-        self.resolution = resolution
+        self.resolution = float(resolution)
         self.minx = 0
         self.miny = 0
         self.minz = 0
@@ -252,6 +252,10 @@ class ConvSurf:
         self.maxy = max(self.maxy, p0[1], p1[1], p2[1])
         self.maxz = max(self.maxz, p0[2], p1[2], p2[2])
         self.triangles.append([p0, p1, p2, [s, 0.0, 0.0]])
+
+    def add_rect(self, p0, p1, p2, p3, s=2):
+        self.add_triangle(p0, p1, p2, s)
+        self.add_triangle(p0, p2, p3, s)
 
     def generate(self, flip_winding=False, isovalue=0.005):
         # TODO: this currently doesn't work, the field is not generated correctly unless min and max are set by user before calling generate
