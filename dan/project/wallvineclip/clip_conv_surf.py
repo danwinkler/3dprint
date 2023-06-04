@@ -1,10 +1,8 @@
 import math
 
-from solid import *
-from solid.utils import *
-
-from lib.helper import *
 from lib import pyconvsurf
+from lib.helper import *
+from solid import cube, cylinder, rotate, scad_render, translate
 
 parts = []
 
@@ -89,6 +87,13 @@ bottom_remove = hole()(
 )
 
 parts += [basic_shape(), screw_hole(), bottom_remove]
+
+do_rot_45 = True
+
+if do_rot_45:
+    parts = up(2.5)(
+        [rotate(a=45, v=[1, 0, 0])(p) for p in parts]
+    ) - translate([-30, -30, -10]) (cube([60, 60, 10]))
 
 print("Saving File")
 with open(__file__ + ".scad", "w") as f:
